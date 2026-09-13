@@ -38,7 +38,7 @@ async function UserNav() {
       </Link>
 
       <Link
-        href="#"
+        href="/signup"
         className="text-[#f7f7f7] uppercase text-[1.6rem] no-underline inline-flex items-center transition-all ease-[ease] duration-300 font-normal bg-transparent [border:1px_solid_currentColor]! cursor-pointer [font-family:inherit] rounded-[10rem] py-4 px-12 hover:[transform:translateY(-2px)] hover:text-shadow-[none] hover:bg-[#f7f7f7] hover:text-[#777] hover:[border-color:#f7f7f7] active:[transform:translateY(-2px)] active:text-shadow-[0_0.7rem_1rem_black] not-last:mr-12 focus:outline-none [@media(max-width:37.5em)]:not-last:mr-0 [@media(max-width:37.5em)]:not-last:mb-[1.2rem]"
       >
         Sign up

@@ -80,6 +80,45 @@ export async function login(formData) {
   redirect("/");
 }
 
+export async function signup(formData) {
+  "use server";
+
+  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/signup`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      name: formData.get("name"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      passwordConfirm: formData.get("passwordConfirm"),
+    }),
+  });
+  console.log(res);
+
+  const data = await res.json();
+
+  if (data.status !== "success") {
+    redirect(
+      `/signup?error=${encodeURIComponent(data.message || "Unable to create your account. Please try again.")}`,
+    );
+  }
+
+  const cookieStore = await cookies();
+
+  cookieStore.set("jwt", data.token, {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+    ),
+    httpOnly: true,
+    // secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  redirect("/");
+}
+
 export async function updateAccountSettings(formData) {
   "use server";
 
