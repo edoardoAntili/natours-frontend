@@ -1,14 +1,15 @@
 import { cacheTag, updateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export async function getAllTours() {
   "use cache";
   const res = await fetch(`${process.env.SERVER_URL}api/v1/tours`);
-  const {
-    data: { data },
-  } = await res.json();
-  return data;
+  const data = await res.json();
+
+  if (data.status !== "success") return notFound();
+
+  return data.data.data;
 }
 
 const getUser = async function (jwt) {
@@ -38,10 +39,11 @@ export async function getLoggedInUser() {
 export async function getTourBySlug(slug) {
   "use cache";
   const res = await fetch(`${process.env.SERVER_URL}api/v1/tours/slug/${slug}`);
-  const {
-    data: { data },
-  } = await res.json();
-  return data;
+  const data = await res.json();
+
+  if (data.status !== "success") return notFound();
+
+  return data.data.data;
 }
 
 export async function login(formData) {
