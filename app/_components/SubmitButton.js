@@ -6,7 +6,7 @@ function SubmitButton({ className, text, loadingText }) {
   const { pending } = useFormStatus();
 
   return (
-    <button className={className} type="submit">
+    <button className={`leading-[normal] ${className}`} type="submit">
       {pending ? loadingText : text}
     </button>
   );

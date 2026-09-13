@@ -8,7 +8,7 @@ function ErrorMessage({ errorName }) {
 
   if (!error) return null;
 
-  return <span className="form__error">{error}</span>;
+  return <span className="text-[#eb4d4b] text-[1.4rem] mx-8">{error}</span>;
 }
 
 export default ErrorMessage;

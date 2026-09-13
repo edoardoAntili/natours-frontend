@@ -8,7 +8,7 @@ function SuccessMessage({ successName }) {
 
   if (!success) return null;
 
-  return <span className="form__success">{success}</span>;
+  return <span className="text-[#55c57a] text-[1.4rem] mx-8">{success}</span>;
 }
 
 export default SuccessMessage;
