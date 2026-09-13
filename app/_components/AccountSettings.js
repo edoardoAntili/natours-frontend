@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { updateAccountSettings } from "../_utils/api";
 import SubmitButton from "./SubmitButton";
 
@@ -40,10 +41,13 @@ export default function AccountSettings({ user }) {
         </div>
 
         <div className="not-last:mb-10 flex items-center text-[1.6rem]">
-          <img
+          <Image
             className="h-30 w-30 rounded-full mr-8"
             src={`/img/users/${user.photo}`}
             alt="User photo"
+            width={75}
+            height={75}
+            sizes="75px"
           />
 
           <input

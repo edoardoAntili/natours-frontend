@@ -161,19 +161,32 @@ async function TourPage({ params }) {
       <section className="bg-[#f7f7f7] mt-[calc(0px_-_9vw)] pt-[calc(15rem_+_9vw)] px-12 pb-44">
         <div className="relative max-w-420 overflow-hidden bg-white rounded-[2rem] shadow-[0_3rem_8rem_0.5rem_rgba(0,_0,_0,_0.15)] my-0 mx-auto py-36 pr-20 pl-84">
           <div className="h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] flex items-center justify-center [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] z-10 [transform:translate(-35%,_-50%)] py-8 px-8 [&_img]:w-full">
-            <img src="/img/logo-white.png" alt="Natours logo" />
+            <Image
+              className="h-auto"
+              src="/img/logo-white.png"
+              alt="Natours logo"
+              width={195}
+              height={100}
+              sizes="110px"
+            />
           </div>
 
-          <img
+          <Image
             className="h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(-10%,_-50%)_scale(0.97)] z-9"
             src={`/img/tours/${tour.images[1]}`}
             alt="Tour picture"
+            width={2000}
+            height={1333}
+            sizes="150px"
           />
 
-          <img
+          <Image
             className="h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(15%,_-50%)_scale(0.94)] z-8"
             src={`/img/tours/${tour.images[2]}`}
             alt="Tour picture"
+            width={2000}
+            height={1333}
+            sizes="150px"
           />
 
           <div className="grid grid-rows-[auto_auto] grid-cols-[1fr_auto] gap-[0.7rem] grid-flow-col items-center">
