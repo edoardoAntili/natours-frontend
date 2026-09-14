@@ -1,4 +1,4 @@
-import { cacheTag, updateTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 
@@ -13,8 +13,6 @@ export async function getAllTours() {
 }
 
 const getUser = async function (jwt) {
-  "use cache";
-  cacheTag("user");
   const res = await fetch(`${process.env.SERVER_URL}api/v1/users/me`, {
     headers: {
       Cookie: `jwt=${jwt}`,
@@ -28,6 +26,10 @@ const getUser = async function (jwt) {
 };
 
 export async function getLoggedInUser() {
+  "use cache: private";
+  cacheTag("user");
+  cacheLife({ stale: 30 });
+
   const cookieStore = await cookies();
   const jwt = cookieStore.get("jwt")?.value;
 

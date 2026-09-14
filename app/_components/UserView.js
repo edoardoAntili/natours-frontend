@@ -1,3 +1,5 @@
+import Link from "next/link";
+import AccountNav from "./AccountNav";
 import AccountSettings from "./AccountSettings";
 import PasswordChange from "./PasswordChange";
 
@@ -6,13 +8,36 @@ import { getLoggedInUser } from "../_utils/api";
 export default async function UserView() {
   const user = await getLoggedInUser();
 
+  if (!user) {
+    return (
+      <div className="max-w-220 bg-white shadow-[0_2.5rem_8rem_2rem_rgba(0,_0,_0,_0.06)] rounded-[5px] my-0 mx-auto py-20 px-28 text-center">
+        <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block mb-8!">
+          You are not logged in
+        </h2>
+        <p className="text-[1.7rem] mb-12">
+          Log in to view and update your account.
+        </p>
+        <Link
+          href="/login"
+          className="text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline transition-all ease-[ease] duration-400 font-normal backface-hidden bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
+        >
+          Log in
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 py-28 px-0">
-      <AccountSettings user={user} />
+    <div className="bg-white max-w-480 min-h-screen rounded-[3px] overflow-hidden shadow-[0_2.5rem_8rem_2rem_rgba(0,_0,_0,_0.07)] flex my-0 mx-auto">
+      <AccountNav user={user} />
 
-      <div className="w-full h-[1px] bg-[#e0e0e0] my-24 mx-0">&nbsp;</div>
+      <div className="flex-1 py-28 px-0">
+        <AccountSettings user={user} />
 
-      <PasswordChange />
+        <div className="w-full h-[1px] bg-[#e0e0e0] my-24 mx-0">&nbsp;</div>
+
+        <PasswordChange />
+      </div>
     </div>
   );
 }
