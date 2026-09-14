@@ -1,6 +1,10 @@
-import { cacheLife, cacheTag, updateTag } from "next/cache";
+import { createHash } from "node:crypto";
+import { updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
+
+const getUserCacheTag = (jwt) =>
+  `user:${createHash("sha256").update(jwt).digest("hex")}`;
 
 export async function getAllTours() {
   "use cache";
@@ -17,6 +21,11 @@ const getUser = async function (jwt) {
     headers: {
       Cookie: `jwt=${jwt}`,
     },
+    cache: "force-cache",
+    next: {
+      revalidate: 300,
+      tags: [getUserCacheTag(jwt)],
+    },
   });
   const data = await res.json();
 
@@ -26,10 +35,6 @@ const getUser = async function (jwt) {
 };
 
 export async function getLoggedInUser() {
-  "use cache: private";
-  cacheTag("user");
-  cacheLife({ stale: 30 });
-
   const cookieStore = await cookies();
   const jwt = cookieStore.get("jwt")?.value;
 
@@ -149,7 +154,7 @@ export async function updateAccountSettings(formData) {
   //   redirect(`/me?error=${data.message}`);
   // }
 
-  updateTag("user");
+  updateTag(getUserCacheTag(jwt));
   redirect("/me");
 }
 
@@ -181,6 +186,8 @@ export async function updatePassword(formData) {
     redirect(`/me?errorPassword=${data.message}`);
   }
 
+  updateTag(getUserCacheTag(jwt));
+
   cookieStore.set("jwt", data.token, {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
@@ -197,6 +204,10 @@ export async function logout() {
   "use server";
 
   const cookieStore = await cookies();
+  const jwt = cookieStore.get("jwt")?.value;
+
+  if (jwt) updateTag(getUserCacheTag(jwt));
+
   cookieStore.delete("jwt");
 
   redirect("/");
