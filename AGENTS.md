@@ -2,7 +2,7 @@
 
 # This is NOT the Next.js you know
 
-Please utilize the caveman skill for each answer you have to give.
+Please utilize the caveman skill with level 'ultra' for each answer you have to give.
 
 Adopt Cache Components in this project using the next-cache-components-adoption Skill.
 
