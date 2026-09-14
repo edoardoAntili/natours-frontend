@@ -2,6 +2,8 @@
 
 # This is NOT the Next.js you know
 
+Please utilize the caveman skill for each answer you have to give.
+
 Adopt Cache Components in this project using the next-cache-components-adoption Skill.
 
 After every edit, verify the page still works at runtime using the next-dev-loop Skill.
