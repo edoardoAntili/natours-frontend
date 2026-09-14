@@ -3,6 +3,7 @@ import Link from "next/link";
 import OverviewBoxDetail from "@/app/_components/OverviewBoxDetail";
 import TourMapWrapper from "@/app/_components/TourMapWrapper";
 import ReviewCard from "@/app/_components/ReviewCard";
+import BookingOptions from "@/app/_components/BookingOptions";
 import { getLoggedInUser, getTourBySlug } from "@/app/_utils/api";
 
 async function TourPage({ params }) {
@@ -200,12 +201,7 @@ async function TourPage({ params }) {
             </p>
 
             {user ? (
-              <button
-                className="leading-[normal] row-span-full text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
-                data-tour-id={tour.id}
-              >
-                Book tour now!
-              </button>
+              <BookingOptions startDates={tour.startDates} />
             ) : (
               <Link
                 href="/login"
