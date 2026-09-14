@@ -212,3 +212,28 @@ export async function logout() {
 
   redirect("/");
 }
+
+export async function createCheckoutSession(slug, bookedDate) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("jwt")?.value;
+  if (!jwt || !slug || !bookedDate) redirect("/login");
+
+  const res = await fetch(
+    `${process.env.SERVER_URL}api/v1/bookings/checkout-session/${slug}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Cookie: `jwt=${jwt}` },
+      body: JSON.stringify({ bookedDate }),
+    },
+  );
+  const data = await res.json();
+
+  if (data.status !== "success" || !data.session?.url) {
+    redirect(
+      `/tour/${slug}?error=${encodeURIComponent(data.message || "Unable to start checkout")}`,
+    );
+  }
+  redirect(data.session.url);
+}

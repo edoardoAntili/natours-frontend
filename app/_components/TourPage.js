@@ -4,7 +4,11 @@ import OverviewBoxDetail from "@/app/_components/OverviewBoxDetail";
 import TourMapWrapper from "@/app/_components/TourMapWrapper";
 import ReviewCard from "@/app/_components/ReviewCard";
 import BookingOptions from "@/app/_components/BookingOptions";
-import { getLoggedInUser, getTourBySlug } from "@/app/_utils/api";
+import {
+  createCheckoutSession,
+  getLoggedInUser,
+  getTourBySlug,
+} from "@/app/_utils/api";
 
 async function TourPage({ params }) {
   const { slug } = await params;
@@ -201,7 +205,7 @@ async function TourPage({ params }) {
             </p>
 
             {user ? (
-              <BookingOptions startDates={tour.startDates} />
+              <BookingOptions startDates={tour.startDates} slug={slug} createCheckoutSession={createCheckoutSession} />
             ) : (
               <Link
                 href="/login"
