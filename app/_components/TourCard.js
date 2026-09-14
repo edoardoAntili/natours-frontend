@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-function TourCard({ tour }) {
+function TourCard({ tour, priority = false }) {
   return (
     <div className="rounded-[3px] overflow-hidden shadow-[0_1.5rem_4rem_rgba(0,_0,_0,_0.1)] bg-white transition-all ease-[ease] duration-300 backface-hidden flex flex-col">
       <div className="relative">
@@ -13,6 +13,7 @@ function TourCard({ tour }) {
               alt={tour.name}
               width={500}
               height={300}
+              priority={priority}
             />
           </div>
         </div>
