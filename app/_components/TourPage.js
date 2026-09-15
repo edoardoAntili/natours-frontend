@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import OverviewBoxDetail from "@/app/_components/OverviewBoxDetail";
 import TourMapWrapper from "@/app/_components/TourMapWrapper";
 import ReviewCard from "@/app/_components/ReviewCard";
@@ -12,7 +13,8 @@ import {
 
 async function TourPage({ params }) {
   const { slug } = await params;
-  const tour = await getTourBySlug(slug);
+  const jwt = (await cookies()).get("jwt")?.value;
+  const tour = await getTourBySlug(slug, jwt);
   const user = await getLoggedInUser();
   const sortedStartDates = [...tour.startDates].sort(
     (firstDate, secondDate) =>

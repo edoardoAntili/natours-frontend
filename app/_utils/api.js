@@ -43,9 +43,14 @@ export async function getLoggedInUser() {
   return getUser(jwt);
 }
 
-export async function getTourBySlug(slug) {
+export async function getTourBySlug(slug, jwt) {
   "use cache";
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/tours/slug/${slug}`);
+  const res = await fetch(
+    `${process.env.SERVER_URL}api/v1/tours/slug/${slug}`,
+    {
+      headers: jwt ? { Cookie: `jwt=${jwt}` } : {},
+    },
+  );
   const data = await res.json();
 
   if (data.status !== "success") return notFound();

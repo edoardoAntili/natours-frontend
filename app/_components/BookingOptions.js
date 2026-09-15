@@ -37,7 +37,7 @@ function BookingOptions({ startDates, slug, createCheckoutSession }) {
                 disabled={startDate.soldOut || isPending}
                 onClick={() =>
                   startTransition(() =>
-                    submitCheckout({ slug, bookedDate: startDate.date }),
+                    submitCheckout({ slug, bookedDate: startDate._id }),
                   )
                 }
                 type="button"
