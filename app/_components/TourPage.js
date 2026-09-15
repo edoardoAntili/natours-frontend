@@ -5,6 +5,7 @@ import OverviewBoxDetail from "@/app/_components/OverviewBoxDetail";
 import TourMapWrapper from "@/app/_components/TourMapWrapper";
 import ReviewCard from "@/app/_components/ReviewCard";
 import BookingOptions from "@/app/_components/BookingOptions";
+import ReviewForm from "@/app/_components/ReviewForm";
 import {
   createCheckoutSession,
   getLoggedInUser,
@@ -16,6 +17,15 @@ async function TourPage({ params }) {
   const jwt = (await cookies()).get("jwt")?.value;
   const tour = await getTourBySlug(slug, jwt);
   const user = await getLoggedInUser();
+  const hasCompletedBooking = tour.bookings?.some(
+    ({ bookedDate }) => new Date(bookedDate.date) < new Date(),
+  );
+  const hasReviewed = tour.reviews?.some(
+    ({ user: reviewUser }) => reviewUser?._id === user?._id,
+  );
+  const canReview = Boolean(
+    user?.role === "user" && hasCompletedBooking && !hasReviewed,
+  );
   const sortedStartDates = [...tour.startDates].sort(
     (firstDate, secondDate) =>
       new Date(firstDate.date) - new Date(secondDate.date),
@@ -227,6 +237,8 @@ async function TourPage({ params }) {
           </div>
         </div>
       </section>
+
+      {canReview && <ReviewForm />}
     </>
   );
 }
