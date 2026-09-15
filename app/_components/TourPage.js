@@ -14,6 +14,10 @@ async function TourPage({ params }) {
   const { slug } = await params;
   const tour = await getTourBySlug(slug);
   const user = await getLoggedInUser();
+  const sortedStartDates = [...tour.startDates].sort(
+    (firstDate, secondDate) =>
+      new Date(firstDate.date) - new Date(secondDate.date),
+  );
 
   return (
     <>
@@ -65,7 +69,7 @@ async function TourPage({ params }) {
 
               <OverviewBoxDetail
                 label="Next date"
-                text={new Date(tour.startDates[0].date).toLocaleString(
+                text={new Date(sortedStartDates[0].date).toLocaleString(
                   "en-US",
                   {
                     month: "long",
@@ -205,7 +209,11 @@ async function TourPage({ params }) {
             </p>
 
             {user ? (
-              <BookingOptions startDates={tour.startDates} slug={slug} createCheckoutSession={createCheckoutSession} />
+              <BookingOptions
+                startDates={sortedStartDates}
+                slug={slug}
+                createCheckoutSession={createCheckoutSession}
+              />
             ) : (
               <Link
                 href="/login"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -12,6 +12,10 @@ function formatDate(date) {
 
 function BookingOptions({ startDates, slug, createCheckoutSession }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [state, submitCheckout, isPending] = useActionState(
+    createCheckoutSession,
+    { error: null },
+  );
 
   return (
     <div className="row-span-full flex flex-col items-center gap-6">
@@ -30,8 +34,12 @@ function BookingOptions({ startDates, slug, createCheckoutSession }) {
             <div key={startDate._id ?? startDate.date}>
               <button
                 className="min-w-36 cursor-pointer rounded-xl border border-[#d8d8d8] bg-white px-5 py-3 text-center text-[1.3rem] transition-all hover:-translate-y-0.5 hover:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.1)] disabled:cursor-not-allowed disabled:bg-[#eee] disabled:text-[#888] disabled:hover:translate-y-0 disabled:hover:shadow-none"
-                disabled={startDate.soldOut}
-                onClick={() => createCheckoutSession(slug, startDate.date)}
+                disabled={startDate.soldOut || isPending}
+                onClick={() =>
+                  startTransition(() =>
+                    submitCheckout({ slug, bookedDate: startDate.date }),
+                  )
+                }
                 type="button"
               >
                 <strong className="block font-bold">
@@ -45,6 +53,11 @@ function BookingOptions({ startDates, slug, createCheckoutSession }) {
               </button>
             </div>
           ))}
+          {state.error && (
+            <span className="basis-full text-center text-[1.4rem] text-[#eb4d4b]">
+              {state.error}
+            </span>
+          )}
         </div>
       )}
     </div>

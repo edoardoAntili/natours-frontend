@@ -213,7 +213,10 @@ export async function logout() {
   redirect("/");
 }
 
-export async function createCheckoutSession(slug, bookedDate) {
+export async function createCheckoutSession(
+  _previousState,
+  { slug, bookedDate },
+) {
   "use server";
 
   const cookieStore = await cookies();
@@ -230,10 +233,8 @@ export async function createCheckoutSession(slug, bookedDate) {
   );
   const data = await res.json();
 
-  if (data.status !== "success" || !data.session?.url) {
-    redirect(
-      `/tour/${slug}?error=${encodeURIComponent(data.message || "Unable to start checkout")}`,
-    );
-  }
+  if (data.status !== "success" || !data.session?.url)
+    return { error: data.message || "Unable to start checkout" };
+
   redirect(data.session.url);
 }
