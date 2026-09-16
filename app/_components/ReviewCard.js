@@ -18,7 +18,9 @@ function ReviewCard({ review }) {
         </h6>
       </div>
 
-      <p className="text-[1.5rem] italic font-normal mb-8">{review.review}</p>
+      <p className="line-clamp-4 overflow-hidden text-[1.5rem] italic font-normal mb-8">
+        {review.review}
+      </p>
 
       <div className="flex mt-auto">
         {[1, 2, 3, 4, 5].map((star) => (

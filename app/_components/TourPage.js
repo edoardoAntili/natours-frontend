@@ -12,8 +12,9 @@ import {
   getTourBySlug,
 } from "@/app/_utils/api";
 
-async function TourPage({ params }) {
+async function TourPage({ params, searchParams }) {
   const { slug } = await params;
+  const { reviewError, reviewSuccess } = await searchParams;
   const jwt = (await cookies()).get("jwt")?.value;
   const tour = await getTourBySlug(slug, jwt);
   const user = await getLoggedInUser();
@@ -32,7 +33,7 @@ async function TourPage({ params }) {
   );
 
   return (
-    <>
+    <main>
       <section className="relative h-[38vw] [clip-path:polygon(_0_0,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]">
         <div className="h-full">
           <div className="relative w-full h-full [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] opacity-[0.85]">
@@ -238,8 +239,20 @@ async function TourPage({ params }) {
         </div>
       </section>
 
-      {canReview && <ReviewForm />}
-    </>
+      {reviewSuccess ? (
+        <section className="bg-[#f7f7f7] px-12 py-24">
+          <div className="max-w-220 bg-white rounded-[1rem] shadow-[0_1rem_4rem_rgba(0,_0,_0,_0.12)] my-0 mx-auto p-12">
+            <p className="text-[1.8rem] text-[#55c57a]" role="status">
+              Review submitted successfully. Thanks for sharing your experience!
+            </p>
+          </div>
+        </section>
+      ) : (
+        canReview && (
+          <ReviewForm tourId={tour._id} slug={slug} error={reviewError} />
+        )
+      )}
+    </main>
   );
 }
 

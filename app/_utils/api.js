@@ -6,6 +6,9 @@ import { notFound, redirect } from "next/navigation";
 const getUserCacheTag = (jwt) =>
   `user:${createHash("sha256").update(jwt).digest("hex")}`;
 
+const getTourCacheTag = (slug, jwt) =>
+  `tour:${slug}:${jwt ? getUserCacheTag(jwt) : "anonymous"}`;
+
 export async function getAllTours() {
   "use cache";
   const res = await fetch(`${process.env.SERVER_URL}api/v1/tours`);
@@ -44,11 +47,15 @@ export async function getLoggedInUser() {
 }
 
 export async function getTourBySlug(slug, jwt) {
-  "use cache";
   const res = await fetch(
     `${process.env.SERVER_URL}api/v1/tours/slug/${slug}`,
     {
       headers: jwt ? { Cookie: `jwt=${jwt}` } : {},
+      cache: "force-cache",
+      next: {
+        revalidate: 300,
+        tags: [getTourCacheTag(slug, jwt)],
+      },
     },
   );
   const data = await res.json();
@@ -242,4 +249,39 @@ export async function createCheckoutSession(
     return { error: data.message || "Unable to start checkout" };
 
   redirect(data.session.url);
+}
+
+export async function createReview(formData) {
+  "use server";
+
+  const cookieStore = await cookies();
+  const jwt = cookieStore.get("jwt")?.value;
+  const tourId = formData.get("tourId");
+  const slug = formData.get("slug");
+
+  if (!jwt) redirect("/login");
+
+  const res = await fetch(
+    `${process.env.SERVER_URL}api/v1/tours/${tourId}/reviews`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `jwt=${jwt}`,
+      },
+      body: JSON.stringify({
+        review: formData.get("review"),
+        rating: Number(formData.get("rating")),
+      }),
+    },
+  );
+  const data = await res.json();
+
+  if (data.status !== "success")
+    redirect(
+      `/tour/${slug}?reviewError=${encodeURIComponent(data.message || "Unable to submit review")}`,
+    );
+
+  updateTag(getTourCacheTag(slug, jwt));
+  redirect(`/tour/${slug}?reviewSuccess=1`);
 }
