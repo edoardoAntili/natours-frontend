@@ -223,7 +223,7 @@ async function TourPage({ params }) {
             {user ? (
               <BookingOptions
                 startDates={sortedStartDates}
-                slug={slug}
+                tourId={tour._id}
                 createCheckoutSession={createCheckoutSession}
               />
             ) : (

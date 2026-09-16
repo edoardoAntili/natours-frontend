@@ -220,16 +220,16 @@ export async function logout() {
 
 export async function createCheckoutSession(
   _previousState,
-  { slug, bookedDate },
+  { tourId, bookedDate },
 ) {
   "use server";
 
   const cookieStore = await cookies();
   const jwt = cookieStore.get("jwt")?.value;
-  if (!jwt || !slug || !bookedDate) redirect("/login");
+  if (!jwt || !tourId || !bookedDate) redirect("/login");
 
   const res = await fetch(
-    `${process.env.SERVER_URL}api/v1/bookings/checkout-session/${slug}`,
+    `${process.env.SERVER_URL}api/v1/bookings/checkout-session/${tourId}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json", Cookie: `jwt=${jwt}` },

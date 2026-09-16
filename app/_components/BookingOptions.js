@@ -10,7 +10,7 @@ function formatDate(date) {
   });
 }
 
-function BookingOptions({ startDates, slug, createCheckoutSession }) {
+function BookingOptions({ startDates, tourId, createCheckoutSession }) {
   const [isOpen, setIsOpen] = useState(false);
   const [state, submitCheckout, isPending] = useActionState(
     createCheckoutSession,
@@ -37,7 +37,7 @@ function BookingOptions({ startDates, slug, createCheckoutSession }) {
                 disabled={startDate.soldOut || isPending}
                 onClick={() =>
                   startTransition(() =>
-                    submitCheckout({ slug, bookedDate: startDate._id }),
+                    submitCheckout({ tourId, bookedDate: startDate._id }),
                   )
                 }
                 type="button"
