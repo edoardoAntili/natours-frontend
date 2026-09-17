@@ -65,6 +65,36 @@ export async function getTourBySlug(slug, jwt) {
   return data.data.data;
 }
 
+export async function setLikedTour(tourId, shouldLike) {
+  "use server";
+
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) return false;
+
+  try {
+    const res = await fetch(
+      `${process.env.SERVER_URL}api/v1/users/liked-tours/${tourId}`,
+      {
+        method: shouldLike ? "POST" : "DELETE",
+        headers: { Cookie: `jwt=${jwt}` },
+      },
+    );
+    const data = await res.json();
+
+    if (
+      !res.ok ||
+      data.status !== "success" ||
+      data.data.likedTours.includes(tourId) !== shouldLike
+    )
+      return false;
+
+    updateTag(getUserCacheTag(jwt));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function login(formData) {
   "use server";
 

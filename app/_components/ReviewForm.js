@@ -1,4 +1,5 @@
 import { createReview } from "@/app/_utils/api";
+import SubmitButton from "./SubmitButton";
 
 function ReviewForm({ tourId, slug, error }) {
   const ratings = [5, 4, 3, 2, 1];
@@ -54,12 +55,12 @@ function ReviewForm({ tourId, slug, error }) {
             </div>
           </fieldset>
 
-          <button
-            type="submit"
+          <SubmitButton
+            text="Submit review"
+            loadingText="Submitting review..."
             className="leading-[normal] text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
-          >
-            Submit review
-          </button>
+          />
+
           {error && (
             <p className="text-[1.4rem] text-[#eb4d4b]" role="alert">
               {error}

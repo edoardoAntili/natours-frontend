@@ -6,10 +6,12 @@ import TourMapWrapper from "@/app/_components/TourMapWrapper";
 import ReviewCard from "@/app/_components/ReviewCard";
 import BookingOptions from "@/app/_components/BookingOptions";
 import ReviewForm from "@/app/_components/ReviewForm";
+import TourLikeButton from "@/app/_components/TourLikeButton";
 import {
   createCheckoutSession,
   getLoggedInUser,
   getTourBySlug,
+  setLikedTour,
 } from "@/app/_utils/api";
 
 async function TourPage({ params, searchParams }) {
@@ -18,6 +20,9 @@ async function TourPage({ params, searchParams }) {
   const jwt = (await cookies()).get("jwt")?.value;
   const tour = await getTourBySlug(slug, jwt);
   const user = await getLoggedInUser();
+  const initialLiked = user?.likedTours?.some(
+    (likedTour) => likedTour === tour._id,
+  );
   const hasCompletedBooking = tour.bookings?.some(
     ({ bookedDate }) => new Date(bookedDate.date) < new Date(),
   );
@@ -45,6 +50,16 @@ async function TourPage({ params, searchParams }) {
               priority
             />
           </div>
+        </div>
+
+        <div className="absolute right-[4vw] top-[4vw] z-10">
+          <TourLikeButton
+            key={`${tour._id}-${initialLiked}`}
+            tourId={tour._id}
+            initialLiked={initialLiked}
+            isLoggedIn={Boolean(user)}
+            setLikedTour={setLikedTour}
+          />
         </div>
 
         <div className="absolute bottom-[13vw] left-1/2 top-[35%] [transform:translate(-50%,_-50%)]">
