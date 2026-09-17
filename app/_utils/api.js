@@ -46,6 +46,27 @@ export async function getLoggedInUser() {
   return getUser(jwt);
 }
 
+export async function getLikedTours() {
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) return null;
+
+  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/liked-tours`, {
+    headers: { Cookie: `jwt=${jwt}` },
+    cache: "force-cache",
+    next: {
+      revalidate: 300,
+      tags: [getUserCacheTag(jwt)],
+    },
+  });
+  if (res.status === 401) return null;
+  if (!res.ok) throw new Error("Unable to load liked tours");
+
+  const data = await res.json();
+  if (data.status !== "success") throw new Error("Unable to load liked tours");
+
+  return data.data.data;
+}
+
 export async function getTourBySlug(slug, jwt) {
   const res = await fetch(
     `${process.env.SERVER_URL}api/v1/tours/slug/${slug}`,
