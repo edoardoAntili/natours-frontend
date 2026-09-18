@@ -2,11 +2,14 @@ import { Suspense } from "react";
 import AccountLoginNotice from "../../_components/AccountLoginNotice";
 import Loading from "../../_components/Loading";
 import TourCard from "../../_components/TourCard";
+import AccountRouteError from "../../_components/AccountRouteError";
 import { getLikedTours } from "../../_utils/api";
 
 async function LikesContent() {
-  const tours = await getLikedTours();
-  if (!tours) return <AccountLoginNotice />;
+  const result = await getLikedTours();
+  if (result.status === "unauthenticated") return <AccountLoginNotice />;
+  if (result.status === "error") return <AccountRouteError resource="liked tours" />;
+  const { tours } = result;
 
   return (
     <section className="px-20">

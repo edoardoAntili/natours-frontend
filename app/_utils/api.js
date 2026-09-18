@@ -20,21 +20,24 @@ export async function getAllTours() {
 }
 
 const getUser = async function (jwt) {
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/me`, {
-    headers: {
-      Cookie: `jwt=${jwt}`,
-    },
-    cache: "force-cache",
-    next: {
-      revalidate: 300,
-      tags: [getUserCacheTag(jwt)],
-    },
-  });
-  const data = await res.json();
+  try {
+    const res = await fetch(`${process.env.SERVER_URL}api/v1/users/me`, {
+      headers: {
+        Cookie: `jwt=${jwt}`,
+      },
+      cache: "force-cache",
+      next: {
+        revalidate: 300,
+        tags: [getUserCacheTag(jwt)],
+      },
+    });
+    if (!res.ok) return null;
 
-  if (data.status !== "success") return null;
-
-  return data.data.data;
+    const data = await res.json();
+    return data.data?.data ?? null;
+  } catch {
+    return null;
+  }
 };
 
 export async function getLoggedInUser() {
@@ -46,25 +49,69 @@ export async function getLoggedInUser() {
   return getUser(jwt);
 }
 
-export async function getLikedTours() {
+async function getAccountData(path, getFetchOptions) {
   const jwt = (await cookies()).get("jwt")?.value;
-  if (!jwt) return null;
+  if (!jwt) return { status: "unauthenticated" };
 
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/liked-tours`, {
+  try {
+    const response = await fetch(
+      `${process.env.SERVER_URL}${path}`,
+      getFetchOptions(jwt),
+    );
+    if (response.status === 401) return { status: "unauthenticated" };
+    if (!response.ok) return { status: "error" };
+
+    const body = await response.json();
+    if (!Array.isArray(body?.data?.data)) return { status: "error" };
+
+    return { status: "success", body };
+  } catch {
+    return { status: "error" };
+  }
+}
+
+export async function getLikedTours() {
+  const result = await getAccountData("api/v1/users/liked-tours", (jwt) => ({
     headers: { Cookie: `jwt=${jwt}` },
     cache: "force-cache",
     next: {
       revalidate: 300,
       tags: [getUserCacheTag(jwt)],
     },
-  });
-  if (res.status === 401) return null;
-  if (!res.ok) throw new Error("Unable to load liked tours");
+  }));
 
-  const data = await res.json();
-  if (data.status !== "success") throw new Error("Unable to load liked tours");
+  return result.status === "success"
+    ? { status: "success", tours: result.body.data.data }
+    : result;
+}
 
-  return data.data.data;
+async function getPaginatedAccountData(resource, page) {
+  const result = await getAccountData(
+    `api/v1/users/${resource}?page=${page}`,
+    (jwt) => ({ headers: { Cookie: `jwt=${jwt}` }, cache: "no-store" }),
+  );
+  if (result.status !== "success") return result;
+  if (!result.body.pagination) return { status: "error" };
+
+  return {
+    status: "success",
+    data: result.body.data.data,
+    pagination: result.body.pagination,
+  };
+}
+
+export async function getMyBookings(page) {
+  const result = await getPaginatedAccountData("bookings", page);
+  return result.status === "success"
+    ? { status: "success", bookings: result.data, pagination: result.pagination }
+    : result;
+}
+
+export async function getMyReviews(page) {
+  const result = await getPaginatedAccountData("reviews", page);
+  return result.status === "success"
+    ? { status: "success", reviews: result.data, pagination: result.pagination }
+    : result;
 }
 
 export async function getTourBySlug(slug, jwt) {
