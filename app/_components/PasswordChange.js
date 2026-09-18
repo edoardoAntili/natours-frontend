@@ -5,7 +5,7 @@ import SuccessMessage from "./SuccessMessage";
 
 export default function PasswordChange() {
   return (
-    <div className="max-w-272 my-0 mx-auto py-0 px-32">
+    <div className="max-w-272 my-0 mx-auto py-0 px-8 sm:px-16 xl:px-32">
       <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block mb-12!">
         Password change
       </h2>
@@ -21,7 +21,7 @@ export default function PasswordChange() {
 
           <input
             id="password-current"
-            className="leading-[normal] font-normal block [font-family:inherit] text-[1.5rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
+            className="leading-[normal] font-normal block [font-family:inherit] text-[1.6rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
             type="password"
             placeholder="••••••••"
             required
@@ -40,7 +40,7 @@ export default function PasswordChange() {
 
           <input
             id="password"
-            className="leading-[normal] font-normal block [font-family:inherit] text-[1.5rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
+            className="leading-[normal] font-normal block [font-family:inherit] text-[1.6rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
             type="password"
             placeholder="••••••••"
             required
@@ -59,7 +59,7 @@ export default function PasswordChange() {
 
           <input
             id="password-confirm"
-            className="leading-[normal] font-normal block [font-family:inherit] text-[1.5rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
+            className="leading-[normal] font-normal block [font-family:inherit] text-[1.6rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
             type="password"
             placeholder="••••••••"
             required

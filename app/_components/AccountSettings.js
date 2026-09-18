@@ -4,7 +4,7 @@ import SubmitButton from "./SubmitButton";
 
 export default function AccountSettings({ user }) {
   return (
-    <div className="max-w-272 my-0 mx-auto py-0 px-32">
+    <div className="max-w-272 my-0 mx-auto py-0 px-8 sm:px-16 xl:px-32">
       <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block mb-12!">
         Your account settings
       </h2>
@@ -17,7 +17,7 @@ export default function AccountSettings({ user }) {
 
           <input
             id="name"
-            className="leading-[normal] font-normal block [font-family:inherit] text-[1.5rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
+            className="leading-[normal] font-normal block [font-family:inherit] text-[1.6rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
             type="text"
             defaultValue={user.name}
             required
@@ -32,7 +32,7 @@ export default function AccountSettings({ user }) {
 
           <input
             id="email"
-            className="leading-[normal] font-normal block [font-family:inherit] text-[1.5rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
+            className="leading-[normal] font-normal block [font-family:inherit] text-[1.6rem] text-inherit border-0 w-full bg-[#f2f2f2] [border-top:3px_solid_transparent] [border-bottom:3px_solid_transparent] transition-all ease-[ease] duration-300 rounded-[4px] box-border py-5 px-7 focus:outline-none focus:[border-bottom:3px_solid_#55c57a] focus:invalid:[border-bottom:3px_solid_#ff7730] placeholder:text-[#bbb]"
             type="email"
             defaultValue={user.email}
             required

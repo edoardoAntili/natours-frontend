@@ -103,7 +103,11 @@ async function getPaginatedAccountData(resource, page) {
 export async function getMyBookings(page) {
   const result = await getPaginatedAccountData("bookings", page);
   return result.status === "success"
-    ? { status: "success", bookings: result.data, pagination: result.pagination }
+    ? {
+        status: "success",
+        bookings: result.data,
+        pagination: result.pagination,
+      }
     : result;
 }
 

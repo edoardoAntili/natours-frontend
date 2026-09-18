@@ -29,9 +29,8 @@ async function TourPage({ params, searchParams }) {
   const hasReviewed = tour.reviews?.some(
     ({ user: reviewUser }) => reviewUser?._id === user?._id,
   );
-  const canReview = Boolean(
-    user?.role === "user" && hasCompletedBooking && !hasReviewed,
-  );
+  const canReview =
+    user?.role === "user" && hasCompletedBooking && !hasReviewed;
   const sortedStartDates = [...tour.startDates].sort(
     (firstDate, secondDate) =>
       new Date(firstDate.date) - new Date(secondDate.date),
@@ -39,7 +38,7 @@ async function TourPage({ params, searchParams }) {
 
   return (
     <main>
-      <section className="relative h-[38vw] [clip-path:polygon(_0_0,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]">
+      <section className="relative h-[48rem] sm:h-[54rem] lg:h-[38vw] [clip-path:polygon(_0_0,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]">
         <div className="h-full">
           <div className="relative w-full h-full [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] opacity-[0.85]">
             <Image
@@ -62,13 +61,13 @@ async function TourPage({ params, searchParams }) {
           />
         </div>
 
-        <div className="absolute bottom-[13vw] left-1/2 top-[35%] [transform:translate(-50%,_-50%)]">
-          <h1 className="text-white uppercase font-light text-[5rem] text-center w-[70%] my-0 mx-auto [&_span]:leading-[1] [&_span]:box-decoration-clone [&_span]:[background-image:linear-gradient(_to_bottom_right,_rgba(125,_213,_111,_0.85),_rgba(40,_180,_135,_0.85)_)] [&_span]:py-4 [&_span]:px-6">
+        <div className="absolute w-full px-6 left-1/2 top-[45%] lg:w-auto lg:px-0 lg:bottom-[13vw] lg:top-[35%] [transform:translate(-50%,_-50%)]">
+          <h1 className="text-white uppercase font-light text-[3.6rem] sm:text-[4.4rem] lg:text-[5rem] text-center w-full max-w-[48rem] lg:w-[70%] my-0 mx-auto [&_span]:leading-[1] [&_span]:box-decoration-clone [&_span]:[background-image:linear-gradient(_to_bottom_right,_rgba(125,_213,_111,_0.85),_rgba(40,_180,_135,_0.85)_)] [&_span]:py-4 [&_span]:px-6">
             <span>{tour.name}</span>
           </h1>
 
-          <div className="text-[#f7f7f7] flex items-center justify-center mt-12">
-            <div className="text-[1.5rem] font-bold uppercase flex items-center text-shadow-[0_0.5rem_2rem_rgba(0,_0,_0,_0.15)] [&_svg]:mr-[0.8rem] not-last:mr-16">
+          <div className="text-[#f7f7f7] flex items-center justify-center gap-6 mt-12 flex-wrap">
+            <div className="text-[1.5rem] font-bold uppercase flex items-center text-shadow-[0_0.5rem_2rem_rgba(0,_0,_0,_0.15)] [&_svg]:mr-[0.8rem] lg:not-last:mr-16">
               <svg className="h-8 w-8 fill-current [filter:drop-shadow(0_0.75rem_0.5rem_rgba(0,_0,_0,_0.25))]">
                 <use href="/img/icons.svg#icon-clock" />
               </svg>
@@ -76,7 +75,7 @@ async function TourPage({ params, searchParams }) {
               <span>{tour.duration} days</span>
             </div>
 
-            <div className="text-[1.5rem] font-bold uppercase flex items-center text-shadow-[0_0.5rem_2rem_rgba(0,_0,_0,_0.15)] [&_svg]:mr-[0.8rem] not-last:mr-16">
+            <div className="text-[1.5rem] font-bold uppercase flex items-center text-shadow-[0_0.5rem_2rem_rgba(0,_0,_0,_0.15)] [&_svg]:mr-[0.8rem] lg:not-last:mr-16">
               <svg className="h-8 w-8 fill-current [filter:drop-shadow(0_0.75rem_0.5rem_rgba(0,_0,_0,_0.25))]">
                 <use href="/img/icons.svg#icon-map-pin" />
               </svg>
@@ -87,10 +86,10 @@ async function TourPage({ params, searchParams }) {
         </div>
       </section>
 
-      <section className="bg-[#fcfcfc] flex mt-[calc(0px_-_9vw)] [&>*]:flex-[0_0_50%] [&>*]:pt-[14vw] [&>*]:px-[8vw] [&>*]:pb-[calc(1vw_+_9vw)]">
-        <div className="bg-[#f7f7f7] flex justify-center">
+      <section className="bg-[#fcfcfc] flex flex-col lg:flex-row mt-[calc(0px_-_9vw)] [&>*]:min-w-0 [&>*]:px-8 [&>*]:py-16 [&>*:first-child]:pt-[calc(9vw_+_4rem)] sm:[&>*]:px-16 lg:[&>*]:flex-[0_0_50%] lg:[&>*]:pt-[14vw] lg:[&>*]:px-[6vw] lg:[&>*]:pb-[calc(1vw_+_9vw)]">
+        <div className="bg-[#f7f7f7] flex justify-center [&>div]:w-full lg:[&>div]:w-auto">
           <div>
-            <div className="not-last:mb-28">
+            <div className="not-last:mb-16 lg:not-last:mb-28">
               <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block mb-14!">
                 Quick facts
               </h2>
@@ -126,7 +125,7 @@ async function TourPage({ params, searchParams }) {
               />
             </div>
 
-            <div className="not-last:mb-28">
+            <div className="not-last:mb-16 lg:not-last:mb-28">
               <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block mb-14!">
                 Your tour guides
               </h2>
@@ -169,11 +168,15 @@ async function TourPage({ params, searchParams }) {
         </div>
       </section>
 
-      <section className="flex [clip-path:polygon(_0_9vw,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)] relative z-1000 mt-[calc(0px_-_9vw)]">
+      <section aria-label="Tour photos" className="relative z-10 flex flex-col bg-[#fcfcfc] px-6 py-12 sm:px-12 lg:z-1000 lg:mt-[calc(0px_-_9vw)] lg:flex-row lg:bg-transparent lg:px-0 lg:py-0 lg:[clip-path:polygon(_0_9vw,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]">
         {tour.images.map((image, index) => (
-          <div className="relative flex-1" key={image}>
+          <div
+            className={`relative w-[88%] min-w-0 shadow-[0_1rem_3rem_rgba(0,_0,_0,_0.15)] first:mt-0 -mt-10 sm:-mt-16 lg:mx-0 lg:mt-0 lg:w-auto lg:flex-1 lg:shadow-none ${index === 1 ? "ml-auto" : "mr-auto"}`}
+            style={{ zIndex: index + 1 }}
+            key={image}
+          >
             <Image
-              className={`block w-full h-[110%] object-cover ${["pt-[15%]", "pb-[15%]", "pb-[27%]"][index] ?? ""}`}
+              className={`block h-[22rem] w-full rounded-lg object-cover sm:h-[32rem] lg:h-[110%] lg:rounded-none ${["lg:pt-[15%]", "lg:pb-[15%]", "lg:pb-[27%]"][index] ?? ""}`}
               src={`/img/tours/${image}`}
               alt={`${tour.name} Tour ${index + 1}`}
               width={2000}
@@ -183,76 +186,78 @@ async function TourPage({ params, searchParams }) {
         ))}
       </section>
 
-      <section className="relative h-260 mt-[calc(0px_-_9vw)]">
+      <section className="relative h-[40rem] sm:h-[50rem] lg:mt-[calc(0px_-_9vw)] lg:h-260">
         <TourMapWrapper locations={tour.locations} />
       </section>
 
-      <section className="relative z-1000 [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] [clip-path:polygon(_0_9vw,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)] mt-[calc(0px_-_9vw)] py-[calc(5rem_+_9vw)] px-0">
-        <div className="grid gap-x-24 grid-flow-col overflow-x-scroll snap-x snap-mandatory py-20 px-0 [&::before]:content-[''] [&::before]:w-8 [&::after]:content-[''] [&::after]:w-8">
+      <section className="relative z-10 [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] py-12 px-0 lg:z-1000 lg:mt-[calc(0px_-_9vw)] lg:py-[calc(5rem_+_9vw)] lg:[clip-path:polygon(_0_9vw,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]">
+        <div className="grid gap-x-6 sm:gap-x-12 lg:gap-x-24 grid-flow-col overflow-x-scroll snap-x snap-mandatory py-20 px-0 [&::before]:content-[''] [&::before]:w-8 [&::after]:content-[''] [&::after]:w-8">
           {tour.reviews.map((review) => (
             <ReviewCard key={review._id} review={review} />
           ))}
         </div>
       </section>
 
-      <section className="bg-[#f7f7f7] mt-[calc(0px_-_9vw)] pt-[calc(15rem_+_9vw)] px-12 pb-44">
-        <div className="relative max-w-420 overflow-hidden bg-white rounded-[2rem] shadow-[0_3rem_8rem_0.5rem_rgba(0,_0,_0,_0.15)] my-0 mx-auto py-36 pr-20 pl-84">
-          <div className="h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] flex items-center justify-center [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] z-10 [transform:translate(-35%,_-50%)] py-8 px-8 [&_img]:w-full">
-            <Image
-              className="h-auto"
-              src="/img/logo-white.png"
-              alt="Natours logo"
-              width={195}
-              height={100}
-              sizes="110px"
-            />
-          </div>
-
-          <Image
-            className="h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(-10%,_-50%)_scale(0.97)] z-9"
-            src={`/img/tours/${tour.images[1]}`}
-            alt="Tour picture"
-            width={2000}
-            height={1333}
-            sizes="150px"
-          />
-
-          <Image
-            className="h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(15%,_-50%)_scale(0.94)] z-8"
-            src={`/img/tours/${tour.images[2]}`}
-            alt="Tour picture"
-            width={2000}
-            height={1333}
-            sizes="150px"
-          />
-
-          <div className="grid grid-rows-[auto_auto] grid-cols-[1fr_auto] gap-[0.7rem] grid-flow-col items-center">
-            <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block">
-              What are you waiting for?
-            </h2>
-
-            <p className="text-[1.9rem] font-normal">
-              {tour.duration} days. 1 adventure. Infinite memories. Make it
-              yours today!
-            </p>
-
-            {user ? (
-              <BookingOptions
-                startDates={sortedStartDates}
-                tourId={tour._id}
-                createCheckoutSession={createCheckoutSession}
+      {(!user || user.role === "user") && (
+        <section className="bg-[#f7f7f7] px-6 pt-16 pb-20 sm:px-12 lg:mt-[calc(0px_-_9vw)] lg:pt-[calc(15rem_+_9vw)] lg:pb-44">
+          <div className="relative max-w-420 overflow-hidden bg-white rounded-[2rem] shadow-[0_3rem_8rem_0.5rem_rgba(0,_0,_0,_0.15)] my-0 mx-auto px-8 py-12 sm:px-16 lg:py-24 lg:pr-16 lg:pl-76 xl:py-36 xl:pr-20 xl:pl-84">
+            <div className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] flex items-center justify-center [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] z-10 [transform:translate(-35%,_-50%)] py-8 px-8 [&_img]:w-full">
+              <Image
+                className="h-auto"
+                src="/img/logo-white.png"
+                alt="Natours logo"
+                width={195}
+                height={100}
+                sizes="110px"
               />
-            ) : (
-              <Link
-                href="/login"
-                className="row-span-full text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
-              >
-                Log in to book
-              </Link>
-            )}
+            </div>
+
+            <Image
+              className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(-10%,_-50%)_scale(0.97)] z-9"
+              src={`/img/tours/${tour.images[1]}`}
+              alt="Tour picture"
+              width={2000}
+              height={1333}
+              sizes="150px"
+            />
+
+            <Image
+              className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(15%,_-50%)_scale(0.94)] z-8"
+              src={`/img/tours/${tour.images[2]}`}
+              alt="Tour picture"
+              width={2000}
+              height={1333}
+              sizes="150px"
+            />
+
+            <div className="grid grid-cols-1 gap-6 items-center xl:grid-rows-[auto_auto] xl:grid-cols-[1fr_auto] xl:gap-[0.7rem] xl:grid-flow-col">
+              <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block">
+                What are you waiting for?
+              </h2>
+
+              <p className="text-[1.9rem] font-normal">
+                {tour.duration} days. 1 adventure. Infinite memories. Make it
+                yours today!
+              </p>
+
+              {user ? (
+                <BookingOptions
+                  startDates={sortedStartDates}
+                  tourId={tour._id}
+                  createCheckoutSession={createCheckoutSession}
+                />
+              ) : (
+                <Link
+                  href="/login"
+                  className="justify-self-start xl:row-span-full text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
+                >
+                  Log in to book
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {reviewSuccess ? (
         <section className="bg-[#f7f7f7] px-12 py-24">

@@ -5,8 +5,8 @@ function ReviewForm({ tourId, slug, error }) {
   const ratings = [5, 4, 3, 2, 1];
 
   return (
-    <section className="bg-[#f7f7f7] px-12 py-24">
-      <div className="max-w-220 bg-white rounded-[1rem] shadow-[0_1rem_4rem_rgba(0,_0,_0,_0.12)] my-0 mx-auto p-12">
+    <section className="bg-[#f7f7f7] px-6 py-12 sm:px-12 sm:py-24">
+      <div className="max-w-220 bg-white rounded-[1rem] shadow-[0_1rem_4rem_rgba(0,_0,_0,_0.12)] my-0 mx-auto p-8 sm:p-12">
         <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] mb-8">
           Share your experience
         </h2>

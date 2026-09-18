@@ -18,9 +18,9 @@ function BookingOptions({ startDates, tourId, createCheckoutSession }) {
   );
 
   return (
-    <div className="row-span-full flex flex-col items-center gap-6">
+    <div className="xl:row-span-full flex min-w-0 flex-col items-start xl:items-center gap-6">
       <button
-        className={`leading-[normal] text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative ${isOpen ? "left-10" : "left-0"} transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]`}
+        className={`leading-[normal] text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative ${isOpen ? "xl:left-10" : "left-0"} transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]`}
         type="button"
         aria-expanded={isOpen}
         onClick={() => setIsOpen((open) => !open)}
@@ -29,7 +29,7 @@ function BookingOptions({ startDates, tourId, createCheckoutSession }) {
       </button>
 
       {isOpen && (
-        <div className="ml-20 flex max-w-160 self-stretch flex-wrap justify-center gap-3 rounded-2xl bg-[#f7f7f7] p-4 shadow-[0_1rem_3rem_rgba(0,_0,_0,_0.15)]">
+        <div className="xl:ml-20 flex max-w-full xl:max-w-160 self-stretch flex-wrap justify-center gap-3 rounded-2xl bg-[#f7f7f7] p-4 shadow-[0_1rem_3rem_rgba(0,_0,_0,_0.15)]">
           {startDates.map((startDate) => (
             <div key={startDate._id ?? startDate.date}>
               <button

@@ -2,7 +2,7 @@ import Image from "next/image";
 
 function ReviewCard({ review }) {
   return (
-    <div className="w-120 bg-[#f7f7f7] rounded-[3px] shadow-[0_1.5rem_4rem_rgba(0,_0,_0,_0.15)] snap-center flex flex-col items-center py-16 px-16">
+    <div className="w-[min(30rem,calc(100vw-6rem))] bg-[#f7f7f7] rounded-[3px] shadow-[0_1.5rem_4rem_rgba(0,_0,_0,_0.15)] snap-center flex flex-col items-center py-12 px-8 sm:py-16 sm:px-16">
       <div className="flex items-center mb-8">
         <Image
           className="h-18 w-auto rounded-full mr-6"

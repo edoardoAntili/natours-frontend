@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="box-border text-[62.5%]">
       <body
-        className={`${lato.className} flex min-h-screen flex-col p-12 text-[#777] font-light leading-[1.6] selection:bg-[#55c57a] selection:text-white`}
+        className={`${lato.className} flex min-h-screen flex-col p-0 sm:p-6 lg:p-12 text-[#777] font-light leading-[1.6] selection:bg-[#55c57a] selection:text-white`}
       >
         <Header />
 
