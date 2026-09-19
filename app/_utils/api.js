@@ -1,22 +1,41 @@
 import { createHash } from "node:crypto";
-import { updateTag } from "next/cache";
+import { cacheTag, updateTag } from "next/cache";
 import { cookies } from "next/headers";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
+
+const serviceError = "Service temporarily unavailable. Please try again.";
+
+async function requestJson(url, options) {
+  try {
+    const response = await fetch(url, options);
+    return { response, data: await response.json() };
+  } catch {
+    return null;
+  }
+}
 
 const getUserCacheTag = (jwt) =>
   `user:${createHash("sha256").update(jwt).digest("hex")}`;
 
-const getTourCacheTag = (slug, jwt) =>
-  `tour:${slug}:${jwt ? getUserCacheTag(jwt) : "anonymous"}`;
+const getTourCacheTag = (slug) => `tour:${slug}`;
+
+async function getCachedTours() {
+  "use cache";
+  cacheTag("tours");
+  const res = await fetch(`${process.env.SERVER_URL}api/v1/tours`);
+  if (!res.ok) throw new Error("Unable to load tours");
+  const data = await res.json();
+  if (data.status !== "success" || !Array.isArray(data.data?.data))
+    throw new Error("Invalid tours response");
+  return data.data.data;
+}
 
 export async function getAllTours() {
-  "use cache";
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/tours`);
-  const data = await res.json();
-
-  if (data.status !== "success") return notFound();
-
-  return data.data.data;
+  try {
+    return { status: "success", tours: await getCachedTours() };
+  } catch {
+    return { status: "error" };
+  }
 }
 
 const getUser = async function (jwt) {
@@ -31,22 +50,30 @@ const getUser = async function (jwt) {
         tags: [getUserCacheTag(jwt)],
       },
     });
-    if (!res.ok) return null;
+    if (res.status === 401) return { status: "unauthenticated" };
+    if (!res.ok) return { status: "error" };
 
     const data = await res.json();
-    return data.data?.data ?? null;
+    return data.data?.data
+      ? { status: "success", user: data.data.data }
+      : { status: "error" };
   } catch {
-    return null;
+    return { status: "error" };
   }
 };
 
-export async function getLoggedInUser() {
+export async function getLoggedInUserResult() {
   const cookieStore = await cookies();
   const jwt = cookieStore.get("jwt")?.value;
 
-  if (!jwt) return null;
+  if (!jwt) return { status: "unauthenticated" };
 
   return getUser(jwt);
+}
+
+export async function getLoggedInUser() {
+  const result = await getLoggedInUserResult();
+  return result.status === "success" ? result.user : null;
 }
 
 async function getAccountData(path, getFetchOptions) {
@@ -119,22 +146,29 @@ export async function getMyReviews(page) {
 }
 
 export async function getTourBySlug(slug, jwt) {
-  const res = await fetch(
-    `${process.env.SERVER_URL}api/v1/tours/slug/${slug}`,
-    {
-      headers: jwt ? { Cookie: `jwt=${jwt}` } : {},
-      cache: "force-cache",
-      next: {
-        revalidate: 300,
-        tags: [getTourCacheTag(slug, jwt)],
+  try {
+    const res = await fetch(
+      `${process.env.SERVER_URL}api/v1/tours/slug/${slug}`,
+      {
+        headers: jwt ? { Cookie: `jwt=${jwt}` } : {},
+        cache: "force-cache",
+        next: {
+          revalidate: 300,
+          tags: [getTourCacheTag(slug)],
+        },
       },
-    },
-  );
-  const data = await res.json();
+    );
+    if (res.status === 404) return { status: "not-found" };
+    if (!res.ok) return { status: "error" };
 
-  if (data.status !== "success") return notFound();
+    const data = await res.json();
+    if (data.status !== "success" || !data.data?.data)
+      return { status: "error" };
 
-  return data.data.data;
+    return { status: "success", tour: data.data.data };
+  } catch {
+    return { status: "error" };
+  }
 }
 
 export async function setLikedTour(tourId, shouldLike) {
@@ -170,21 +204,27 @@ export async function setLikedTour(tourId, shouldLike) {
 export async function login(formData) {
   "use server";
 
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  const result = await requestJson(
+    `${process.env.SERVER_URL}api/v1/users/login`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: formData.get("email"),
+        password: formData.get("password"),
+      }),
     },
-    body: JSON.stringify({
-      email: formData.get("email"),
-      password: formData.get("password"),
-    }),
-  });
+  );
 
-  const data = await res.json();
+  if (!result) redirect(`/login?error=${encodeURIComponent(serviceError)}`);
+  const { response, data } = result;
 
-  if (data.status !== "success") {
-    redirect(`/login?error=${data.message}`);
+  if (!response.ok || data.status !== "success") {
+    redirect(
+      `/login?error=${encodeURIComponent(data.message || "Unable to log in")}`,
+    );
   }
 
   const cookieStore = await cookies();
@@ -204,23 +244,25 @@ export async function login(formData) {
 export async function signup(formData) {
   "use server";
 
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/signup`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+  const result = await requestJson(
+    `${process.env.SERVER_URL}api/v1/users/signup`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: formData.get("name"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+        passwordConfirm: formData.get("passwordConfirm"),
+      }),
     },
-    body: JSON.stringify({
-      name: formData.get("name"),
-      email: formData.get("email"),
-      password: formData.get("password"),
-      passwordConfirm: formData.get("passwordConfirm"),
-    }),
-  });
-  console.log(res);
+  );
+  if (!result) redirect(`/signup?error=${encodeURIComponent(serviceError)}`);
+  const { response, data } = result;
 
-  const data = await res.json();
-
-  if (data.status !== "success") {
+  if (!response.ok || data.status !== "success") {
     redirect(
       `/signup?error=${encodeURIComponent(data.message || "Unable to create your account. Please try again.")}`,
     );
@@ -244,7 +286,8 @@ export async function updateAccountSettings(formData) {
   "use server";
 
   const cookieStore = await cookies();
-  const jwt = cookieStore.get("jwt").value;
+  const jwt = cookieStore.get("jwt")?.value;
+  if (!jwt) redirect("/login");
 
   const body = new FormData();
 
@@ -253,20 +296,23 @@ export async function updateAccountSettings(formData) {
   if (formData.get("photo").type.startsWith("image"))
     body.append("photo", formData.get("photo"));
 
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/updateMe`, {
-    method: "PATCH",
-    headers: {
-      Cookie: `jwt=${jwt}`,
+  const result = await requestJson(
+    `${process.env.SERVER_URL}api/v1/users/updateMe`,
+    {
+      method: "PATCH",
+      headers: {
+        Cookie: `jwt=${jwt}`,
+      },
+      body,
     },
-    body,
-  });
+  );
 
-  const data = await res.json();
-
-  // To see
-  // if (data.status !== "success") {
-  //   redirect(`/me?error=${data.message}`);
-  // }
+  if (!result) redirect(`/me?error=${encodeURIComponent(serviceError)}`);
+  const { response, data } = result;
+  if (!response.ok || data.status !== "success")
+    redirect(
+      `/me?error=${encodeURIComponent(data.message || "Unable to save settings")}`,
+    );
 
   updateTag(getUserCacheTag(jwt));
   redirect("/me");
@@ -276,9 +322,10 @@ export async function updatePassword(formData) {
   "use server";
 
   const cookieStore = await cookies();
-  const jwt = cookieStore.get("jwt").value;
+  const jwt = cookieStore.get("jwt")?.value;
+  if (!jwt) redirect("/login");
 
-  const res = await fetch(
+  const result = await requestJson(
     `${process.env.SERVER_URL}api/v1/users/updateMyPassword`,
     {
       method: "PATCH",
@@ -294,10 +341,14 @@ export async function updatePassword(formData) {
     },
   );
 
-  const data = await res.json();
+  if (!result)
+    redirect(`/me?errorPassword=${encodeURIComponent(serviceError)}`);
+  const { response, data } = result;
 
-  if (data.status !== "success") {
-    redirect(`/me?errorPassword=${data.message}`);
+  if (!response.ok || data.status !== "success") {
+    redirect(
+      `/me?errorPassword=${encodeURIComponent(data.message || "Unable to update password")}`,
+    );
   }
 
   updateTag(getUserCacheTag(jwt));
@@ -337,7 +388,7 @@ export async function createCheckoutSession(
   const jwt = cookieStore.get("jwt")?.value;
   if (!jwt || !tourId || !bookedDate) redirect("/login");
 
-  const res = await fetch(
+  const result = await requestJson(
     `${process.env.SERVER_URL}api/v1/bookings/checkout-session/${tourId}`,
     {
       method: "POST",
@@ -345,9 +396,10 @@ export async function createCheckoutSession(
       body: JSON.stringify({ bookedDate }),
     },
   );
-  const data = await res.json();
+  if (!result) return { error: serviceError };
+  const { response, data } = result;
 
-  if (data.status !== "success" || !data.session?.url)
+  if (!response.ok || data.status !== "success" || !data.session?.url)
     return { error: data.message || "Unable to start checkout" };
 
   redirect(data.session.url);
@@ -363,7 +415,7 @@ export async function createReview(formData) {
 
   if (!jwt) redirect("/login");
 
-  const res = await fetch(
+  const result = await requestJson(
     `${process.env.SERVER_URL}api/v1/tours/${tourId}/reviews`,
     {
       method: "POST",
@@ -377,13 +429,16 @@ export async function createReview(formData) {
       }),
     },
   );
-  const data = await res.json();
+  if (!result)
+    redirect(`/tour/${slug}?reviewError=${encodeURIComponent(serviceError)}`);
+  const { response, data } = result;
 
-  if (data.status !== "success")
+  if (!response.ok || data.status !== "success")
     redirect(
       `/tour/${slug}?reviewError=${encodeURIComponent(data.message || "Unable to submit review")}`,
     );
 
-  updateTag(getTourCacheTag(slug, jwt));
+  updateTag(getTourCacheTag(slug));
+  updateTag("tours");
   redirect(`/tour/${slug}?reviewSuccess=1`);
 }

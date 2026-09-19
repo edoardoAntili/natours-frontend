@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import AccountNav from "../_components/AccountNav";
-import { getLoggedInUser } from "../_utils/api";
+import { getLoggedInUserResult } from "../_utils/api";
+import AccountRouteError from "../_components/AccountRouteError";
 
 function SkeletonBlock({ className = "" }) {
   return (
@@ -27,8 +28,9 @@ function AccountNavFallback() {
 }
 
 async function AccountNavigation() {
-  const user = await getLoggedInUser();
-  return user ? <AccountNav role={user.role} /> : null;
+  const result = await getLoggedInUserResult();
+  if (result.status === "error") return <AccountRouteError resource="account navigation" />;
+  return result.status === "success" ? <AccountNav role={result.user.role} /> : null;
 }
 
 function AccountLayout({ children }) {

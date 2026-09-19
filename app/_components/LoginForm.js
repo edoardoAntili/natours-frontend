@@ -49,7 +49,9 @@ async function LoginForm({ searchParams }) {
       />
 
       {error && (
-        <span className="text-[#eb4d4b] text-[1.4rem] mx-8">{error}</span>
+        <p role="alert" className="mt-8 text-[#eb4d4b] text-[1.4rem]">
+          {error}
+        </p>
       )}
     </form>
   );

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import OverviewBoxDetail from "@/app/_components/OverviewBoxDetail";
 import TourMapWrapper from "@/app/_components/TourMapWrapper";
@@ -7,6 +8,7 @@ import ReviewCard from "@/app/_components/ReviewCard";
 import BookingOptions from "@/app/_components/BookingOptions";
 import ReviewForm from "@/app/_components/ReviewForm";
 import TourLikeButton from "@/app/_components/TourLikeButton";
+import ServiceUnavailable from "@/app/_components/ServiceUnavailable";
 import {
   createCheckoutSession,
   getLoggedInUser,
@@ -18,7 +20,11 @@ async function TourPage({ params, searchParams }) {
   const { slug } = await params;
   const { reviewError, reviewSuccess } = await searchParams;
   const jwt = (await cookies()).get("jwt")?.value;
-  const tour = await getTourBySlug(slug, jwt);
+  const result = await getTourBySlug(slug, jwt);
+  if (result.status === "not-found") notFound();
+  if (result.status === "error")
+    return <main className="flex-1 bg-[#f7f7f7] px-6 py-20"><ServiceUnavailable resource="this tour" /></main>;
+  const { tour } = result;
   const user = await getLoggedInUser();
   const initialLiked = user?.likedTours?.some(
     (likedTour) => likedTour === tour._id,
@@ -168,7 +174,10 @@ async function TourPage({ params, searchParams }) {
         </div>
       </section>
 
-      <section aria-label="Tour photos" className="relative z-10 flex flex-col bg-[#fcfcfc] px-6 py-12 sm:px-12 lg:z-1000 lg:mt-[calc(0px_-_9vw)] lg:flex-row lg:bg-transparent lg:px-0 lg:py-0 lg:[clip-path:polygon(_0_9vw,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]">
+      <section
+        aria-label="Tour photos"
+        className="relative z-10 flex flex-col bg-[#fcfcfc] px-6 py-12 sm:px-12 lg:z-1000 lg:mt-[calc(0px_-_9vw)] lg:flex-row lg:bg-transparent lg:px-0 lg:py-0 lg:[clip-path:polygon(_0_9vw,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]"
+      >
         {tour.images.map((image, index) => (
           <div
             className={`relative w-[88%] min-w-0 shadow-[0_1rem_3rem_rgba(0,_0,_0,_0.15)] first:mt-0 -mt-10 sm:-mt-16 lg:mx-0 lg:mt-0 lg:w-auto lg:flex-1 lg:shadow-none ${index === 1 ? "ml-auto" : "mr-auto"}`}

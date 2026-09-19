@@ -3,10 +3,13 @@ import AccountLoginNotice from "../_components/AccountLoginNotice";
 import AccountSettings from "../_components/AccountSettings";
 import Loading from "../_components/Loading";
 import PasswordChange from "../_components/PasswordChange";
-import { getLoggedInUser } from "../_utils/api";
+import { getLoggedInUserResult } from "../_utils/api";
+import AccountRouteError from "../_components/AccountRouteError";
 
 async function AccountContent() {
-  const user = await getLoggedInUser();
+  const result = await getLoggedInUserResult();
+  if (result.status === "error") return <AccountRouteError resource="account" />;
+  const user = result.status === "success" ? result.user : null;
 
   if (!user) return <AccountLoginNotice />;
 

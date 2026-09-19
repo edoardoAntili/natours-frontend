@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { updateAccountSettings } from "../_utils/api";
 import SubmitButton from "./SubmitButton";
+import ErrorMessage from "./ErrorMessage";
 
 export default function AccountSettings({ user }) {
   return (
@@ -62,6 +63,7 @@ export default function AccountSettings({ user }) {
         </div>
 
         <div className="text-right! not-last:mb-10">
+          <ErrorMessage errorName="error" />
           <SubmitButton
             text="Save settings"
             loadingText="Saving..."

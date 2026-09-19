@@ -1,10 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getLoggedInUser } from "../_utils/api";
+import { getLoggedInUserResult } from "../_utils/api";
 import LogoutButton from "./LogoutButton";
 
 async function UserNav() {
-  const user = await getLoggedInUser();
+  const result = await getLoggedInUserResult();
+  if (result.status === "error")
+    return <span role="status" className="text-[1.4rem] text-white">Account temporarily unavailable</span>;
+  const user = result.status === "success" ? result.user : null;
 
   return user ? (
     <>
