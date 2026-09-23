@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
+import { Suspense } from "react";
 import OverviewBoxDetail from "@/app/_components/OverviewBoxDetail";
 import TourMapWrapper from "@/app/_components/TourMapWrapper";
 import ReviewCard from "@/app/_components/ReviewCard";
@@ -12,31 +13,152 @@ import ServiceUnavailable from "@/app/_components/ServiceUnavailable";
 import {
   createCheckoutSession,
   getLoggedInUser,
+  getPersonalTourBySlug,
   getTourBySlug,
   setLikedTour,
 } from "@/app/_utils/api";
 
-async function TourPage({ params, searchParams }) {
-  const { slug } = await params;
-  const { reviewError, reviewSuccess } = await searchParams;
-  const jwt = (await cookies()).get("jwt")?.value;
-  const result = await getTourBySlug(slug, jwt);
-  if (result.status === "not-found") notFound();
-  if (result.status === "error")
-    return <main className="flex-1 bg-[#f7f7f7] px-6 py-20"><ServiceUnavailable resource="this tour" /></main>;
-  const { tour } = result;
+async function PersonalLikeButton({ tourId }) {
   const user = await getLoggedInUser();
-  const initialLiked = user?.likedTours?.some(
-    (likedTour) => likedTour === tour._id,
+  const initialLiked = user?.likedTours?.includes(tourId) ?? false;
+  return (
+    <TourLikeButton
+      key={`${tourId}-${initialLiked}`}
+      tourId={tourId}
+      initialLiked={initialLiked}
+      isLoggedIn={Boolean(user)}
+      setLikedTour={setLikedTour}
+    />
   );
-  const hasCompletedBooking = tour.bookings?.some(
+}
+
+async function PersonalBookingOptions({ slug, tourId }) {
+  const user = await getLoggedInUser();
+  if (!user)
+    return (
+      <Link
+        href="/login"
+        className="justify-self-start xl:row-span-full text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
+      >
+        Log in to book
+      </Link>
+    );
+  if (user.role !== "user") return null;
+
+  const jwt = (await cookies()).get("jwt")?.value;
+  const result = await getPersonalTourBySlug(slug, jwt);
+  if (result.status !== "success")
+    return <ServiceUnavailable resource="booking dates" />;
+  const availableDates = result.tour.startDates;
+  return (
+    <BookingOptions
+      startDates={[...availableDates].sort(
+        (a, b) => new Date(a.date) - new Date(b.date),
+      )}
+      tourId={tourId}
+      createCheckoutSession={createCheckoutSession}
+    />
+  );
+}
+
+async function PersonalReviewForm({ tour, slug, searchParams }) {
+  const { reviewError, reviewSuccess } = await searchParams;
+  if (reviewSuccess)
+    return (
+      <section className="bg-[#f7f7f7] px-12 py-24">
+        <div className="max-w-220 bg-white rounded-[1rem] shadow-[0_1rem_4rem_rgba(0,_0,_0,_0.12)] my-0 mx-auto p-12">
+          <p className="text-[1.8rem] text-[#55c57a]" role="status">
+            Review submitted successfully. Thanks for sharing your experience!
+          </p>
+        </div>
+      </section>
+    );
+
+  const user = await getLoggedInUser();
+  if (user?.role !== "user") return null;
+  const jwt = (await cookies()).get("jwt")?.value;
+  const result = await getPersonalTourBySlug(slug, jwt);
+  if (result.status !== "success") return null;
+  const hasCompletedBooking = result.tour.bookings?.some(
     ({ bookedDate }) => new Date(bookedDate.date) < new Date(),
   );
   const hasReviewed = tour.reviews?.some(
-    ({ user: reviewUser }) => reviewUser?._id === user?._id,
+    ({ user: reviewUser }) => reviewUser?._id === user._id,
   );
-  const canReview =
-    user?.role === "user" && hasCompletedBooking && !hasReviewed;
+  return hasCompletedBooking && !hasReviewed ? (
+    <ReviewForm tourId={tour._id} slug={slug} error={reviewError} />
+  ) : null;
+}
+
+async function PersonalBookingSection({ tour, slug }) {
+  const user = await getLoggedInUser();
+  if (user?.role && user.role !== "user") return null;
+  return (
+    <section className="bg-[#f7f7f7] px-6 pt-16 pb-20 sm:px-12 lg:mt-[calc(0px_-_9vw)] lg:pt-[calc(15rem_+_9vw)] lg:pb-44">
+      <div className="relative max-w-420 overflow-hidden bg-white rounded-[2rem] shadow-[0_3rem_8rem_0.5rem_rgba(0,_0,_0,_0.15)] my-0 mx-auto px-8 py-12 sm:px-16 lg:py-24 lg:pr-16 lg:pl-76 xl:py-36 xl:pr-20 xl:pl-84">
+        <div className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] flex items-center justify-center [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] z-10 [transform:translate(-35%,_-50%)] py-8 px-8 [&_img]:w-full">
+          <Image
+            className="h-auto"
+            src="/img/logo-white.png"
+            alt="Natours logo"
+            width={195}
+            height={100}
+            sizes="110px"
+          />
+        </div>
+
+        <Image
+          className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(-10%,_-50%)_scale(0.97)] z-9"
+          src={`/img/tours/${tour.images[1]}`}
+          alt="Tour picture"
+          width={2000}
+          height={1333}
+          sizes="150px"
+        />
+
+        <Image
+          className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(15%,_-50%)_scale(0.94)] z-8"
+          src={`/img/tours/${tour.images[2]}`}
+          alt="Tour picture"
+          width={2000}
+          height={1333}
+          sizes="150px"
+        />
+
+        <div className="grid grid-cols-1 gap-6 items-center xl:grid-rows-[auto_auto] xl:grid-cols-[1fr_auto] xl:gap-[0.7rem] xl:grid-flow-col">
+          <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block">
+            What are you waiting for?
+          </h2>
+
+          <p className="text-[1.9rem] font-normal">
+            {tour.duration} days. 1 adventure. Infinite memories. Make it yours
+            today!
+          </p>
+
+          <Suspense
+            fallback={
+              <span className="block h-14 w-48 rounded-full bg-[#55c57a]/20" />
+            }
+          >
+            <PersonalBookingOptions slug={slug} tourId={tour._id} />
+          </Suspense>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+async function TourPage({ params, searchParams }) {
+  const { slug } = await params;
+  const result = await getTourBySlug(slug);
+  if (result.status === "not-found") notFound();
+  if (result.status === "error")
+    return (
+      <main className="flex-1 bg-[#f7f7f7] px-6 py-20">
+        <ServiceUnavailable resource="this tour" />
+      </main>
+    );
+  const { tour } = result;
   const sortedStartDates = [...tour.startDates].sort(
     (firstDate, secondDate) =>
       new Date(firstDate.date) - new Date(secondDate.date),
@@ -58,13 +180,13 @@ async function TourPage({ params, searchParams }) {
         </div>
 
         <div className="absolute right-[4vw] top-[4vw] z-10">
-          <TourLikeButton
-            key={`${tour._id}-${initialLiked}`}
-            tourId={tour._id}
-            initialLiked={initialLiked}
-            isLoggedIn={Boolean(user)}
-            setLikedTour={setLikedTour}
-          />
+          <Suspense
+            fallback={
+              <span className="block h-14 w-14 rounded-full bg-white/70" />
+            }
+          >
+            <PersonalLikeButton tourId={tour._id} />
+          </Suspense>
         </div>
 
         <div className="absolute w-full px-6 left-1/2 top-[45%] lg:w-auto lg:px-0 lg:bottom-[13vw] lg:top-[35%] [transform:translate(-50%,_-50%)]">
@@ -207,80 +329,17 @@ async function TourPage({ params, searchParams }) {
         </div>
       </section>
 
-      {(!user || user.role === "user") && (
-        <section className="bg-[#f7f7f7] px-6 pt-16 pb-20 sm:px-12 lg:mt-[calc(0px_-_9vw)] lg:pt-[calc(15rem_+_9vw)] lg:pb-44">
-          <div className="relative max-w-420 overflow-hidden bg-white rounded-[2rem] shadow-[0_3rem_8rem_0.5rem_rgba(0,_0,_0,_0.15)] my-0 mx-auto px-8 py-12 sm:px-16 lg:py-24 lg:pr-16 lg:pl-76 xl:py-36 xl:pr-20 xl:pl-84">
-            <div className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] flex items-center justify-center [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] z-10 [transform:translate(-35%,_-50%)] py-8 px-8 [&_img]:w-full">
-              <Image
-                className="h-auto"
-                src="/img/logo-white.png"
-                alt="Natours logo"
-                width={195}
-                height={100}
-                sizes="110px"
-              />
-            </div>
+      <Suspense fallback={null}>
+        <PersonalBookingSection tour={tour} slug={slug} />
+      </Suspense>
 
-            <Image
-              className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(-10%,_-50%)_scale(0.97)] z-9"
-              src={`/img/tours/${tour.images[1]}`}
-              alt="Tour picture"
-              width={2000}
-              height={1333}
-              sizes="150px"
-            />
-
-            <Image
-              className="hidden lg:flex h-60 w-60 absolute left-0 top-1/2 rounded-full shadow-[1rem_0.5rem_3rem_rgba(0,_0,_0,_0.15)] [transform:translate(15%,_-50%)_scale(0.94)] z-8"
-              src={`/img/tours/${tour.images[2]}`}
-              alt="Tour picture"
-              width={2000}
-              height={1333}
-              sizes="150px"
-            />
-
-            <div className="grid grid-cols-1 gap-6 items-center xl:grid-rows-[auto_auto] xl:grid-cols-[1fr_auto] xl:gap-[0.7rem] xl:grid-flow-col">
-              <h2 className="text-[2.25rem] uppercase font-bold [background-image:linear-gradient(to_right,_#7dd56f,_#28b487)] bg-clip-text text-transparent tracking-[0.1rem] leading-[1.3] inline-block">
-                What are you waiting for?
-              </h2>
-
-              <p className="text-[1.9rem] font-normal">
-                {tour.duration} days. 1 adventure. Infinite memories. Make it
-                yours today!
-              </p>
-
-              {user ? (
-                <BookingOptions
-                  startDates={sortedStartDates}
-                  tourId={tour._id}
-                  createCheckoutSession={createCheckoutSession}
-                />
-              ) : (
-                <Link
-                  href="/login"
-                  className="justify-self-start xl:row-span-full text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
-                >
-                  Log in to book
-                </Link>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {reviewSuccess ? (
-        <section className="bg-[#f7f7f7] px-12 py-24">
-          <div className="max-w-220 bg-white rounded-[1rem] shadow-[0_1rem_4rem_rgba(0,_0,_0,_0.12)] my-0 mx-auto p-12">
-            <p className="text-[1.8rem] text-[#55c57a]" role="status">
-              Review submitted successfully. Thanks for sharing your experience!
-            </p>
-          </div>
-        </section>
-      ) : (
-        canReview && (
-          <ReviewForm tourId={tour._id} slug={slug} error={reviewError} />
-        )
-      )}
+      <Suspense fallback={null}>
+        <PersonalReviewForm
+          tour={tour}
+          slug={slug}
+          searchParams={searchParams}
+        />
+      </Suspense>
     </main>
   );
 }

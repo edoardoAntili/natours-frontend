@@ -5,7 +5,9 @@ import AccountRouteError from "../_components/AccountRouteError";
 
 function SkeletonBlock({ className = "" }) {
   return (
-    <div className={`relative overflow-hidden rounded bg-white/20 ${className}`}>
+    <div
+      className={`relative overflow-hidden rounded bg-white/20 ${className}`}
+    >
       <span className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/35 to-transparent motion-safe:animate-[account-nav-shimmer_1.5s_ease-in-out_infinite]" />
     </div>
   );
@@ -18,7 +20,10 @@ function AccountNavFallback() {
       className="shrink-0 lg:basis-[26rem] xl:basis-[32rem] [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] grid grid-cols-2 py-4 lg:block lg:py-16"
     >
       {["w-30", "w-40", "w-38", "w-28"].map((width, index) => (
-        <div key={index} className="flex items-center gap-4 px-8 py-4 my-4 lg:px-12">
+        <div
+          key={index}
+          className="flex items-center gap-4 px-8 py-4 my-4 lg:px-12"
+        >
           <SkeletonBlock className="h-8 w-8 shrink-0" />
           <SkeletonBlock className={`h-5 ${width}`} />
         </div>
@@ -29,8 +34,11 @@ function AccountNavFallback() {
 
 async function AccountNavigation() {
   const result = await getLoggedInUserResult();
-  if (result.status === "error") return <AccountRouteError resource="account navigation" />;
-  return result.status === "success" ? <AccountNav role={result.user.role} /> : null;
+  if (result.status === "error")
+    return <AccountRouteError resource="account navigation" />;
+  return result.status === "success" ? (
+    <AccountNav role={result.user.role} />
+  ) : null;
 }
 
 function AccountLayout({ children }) {

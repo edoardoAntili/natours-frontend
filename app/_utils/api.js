@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cacheTag, updateTag } from "next/cache";
+import { cacheLife, cacheTag, updateTag } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -19,47 +19,21 @@ const getUserCacheTag = (jwt) =>
 
 const getTourCacheTag = (slug) => `tour:${slug}`;
 
-async function getCachedTours() {
-  "use cache";
-  cacheTag("tours");
-  const res = await fetch(`${process.env.SERVER_URL}api/v1/tours`);
-  if (!res.ok) throw new Error("Unable to load tours");
-  const data = await res.json();
-  if (data.status !== "success" || !Array.isArray(data.data?.data))
-    throw new Error("Invalid tours response");
-  return data.data.data;
-}
-
-export async function getAllTours() {
-  try {
-    return { status: "success", tours: await getCachedTours() };
-  } catch {
-    return { status: "error" };
-  }
-}
-
 const getUser = async function (jwt) {
-  try {
-    const res = await fetch(`${process.env.SERVER_URL}api/v1/users/me`, {
-      headers: {
-        Cookie: `jwt=${jwt}`,
-      },
-      cache: "force-cache",
-      next: {
-        revalidate: 300,
-        tags: [getUserCacheTag(jwt)],
-      },
-    });
-    if (res.status === 401) return { status: "unauthenticated" };
-    if (!res.ok) return { status: "error" };
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 300, expire: 3600 });
+  cacheTag(getUserCacheTag(jwt));
+  const res = await fetch(`${process.env.SERVER_URL}api/v1/users/me`, {
+    headers: {
+      Cookie: `jwt=${jwt}`,
+    },
+  });
+  if (res.status === 401) return { status: "unauthenticated" };
+  if (!res.ok) throw new Error("Unable to load user");
 
-    const data = await res.json();
-    return data.data?.data
-      ? { status: "success", user: data.data.data }
-      : { status: "error" };
-  } catch {
-    return { status: "error" };
-  }
+  const data = await res.json();
+  if (!data.data?.data) throw new Error("Invalid user response");
+  return { status: "success", user: data.data.data };
 };
 
 export async function getLoggedInUserResult() {
@@ -68,7 +42,11 @@ export async function getLoggedInUserResult() {
 
   if (!jwt) return { status: "unauthenticated" };
 
-  return getUser(jwt);
+  try {
+    return await getUser(jwt);
+  } catch {
+    return { status: "error" };
+  }
 }
 
 export async function getLoggedInUser() {
@@ -76,15 +54,11 @@ export async function getLoggedInUser() {
   return result.status === "success" ? result.user : null;
 }
 
-async function getAccountData(path, getFetchOptions) {
-  const jwt = (await cookies()).get("jwt")?.value;
-  if (!jwt) return { status: "unauthenticated" };
-
+async function getAccountData(path, jwt) {
   try {
-    const response = await fetch(
-      `${process.env.SERVER_URL}${path}`,
-      getFetchOptions(jwt),
-    );
+    const response = await fetch(`${process.env.SERVER_URL}${path}`, {
+      headers: { Cookie: `jwt=${jwt}` },
+    });
     if (response.status === 401) return { status: "unauthenticated" };
     if (!response.ok) return { status: "error" };
 
@@ -98,14 +72,16 @@ async function getAccountData(path, getFetchOptions) {
 }
 
 export async function getLikedTours() {
-  const result = await getAccountData("api/v1/users/liked-tours", (jwt) => ({
-    headers: { Cookie: `jwt=${jwt}` },
-    cache: "force-cache",
-    next: {
-      revalidate: 300,
-      tags: [getUserCacheTag(jwt)],
-    },
-  }));
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) return { status: "unauthenticated" };
+  return getCachedLikedTours(jwt);
+}
+
+async function getCachedLikedTours(jwt) {
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 300, expire: 3600 });
+  cacheTag(getUserCacheTag(jwt));
+  const result = await getAccountData("api/v1/users/liked-tours", jwt);
 
   return result.status === "success"
     ? { status: "success", tours: result.body.data.data }
@@ -113,9 +89,11 @@ export async function getLikedTours() {
 }
 
 async function getPaginatedAccountData(resource, page) {
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) return { status: "unauthenticated" };
   const result = await getAccountData(
     `api/v1/users/${resource}?page=${page}`,
-    (jwt) => ({ headers: { Cookie: `jwt=${jwt}` }, cache: "no-store" }),
+    jwt,
   );
   if (result.status !== "success") return result;
   if (!result.body.pagination) return { status: "error" };
@@ -145,18 +123,88 @@ export async function getMyReviews(page) {
     : result;
 }
 
-export async function getTourBySlug(slug, jwt) {
+export async function getAdminReviews(query, page) {
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) return { status: "unauthenticated" };
+
+  const params = new URLSearchParams({ page: String(page), limit: "10" });
+  if (query) params.set("query", query);
+
+  try {
+    const response = await fetch(
+      `${process.env.SERVER_URL}api/v1/reviews/admin?${params}`,
+      {
+        headers: { Cookie: `jwt=${jwt}` },
+      },
+    );
+    if (response.status === 401) return { status: "unauthenticated" };
+    if (response.status === 403) return { status: "forbidden" };
+    if (!response.ok) return { status: "error" };
+
+    const body = await response.json();
+    if (!Array.isArray(body?.data?.data) || !body.pagination)
+      return { status: "error" };
+
+    return {
+      status: "success",
+      reviews: body.data.data,
+      pagination: body.pagination,
+    };
+  } catch {
+    return { status: "error" };
+  }
+}
+
+export async function deleteAdminReview(formData) {
+  "use server";
+
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) redirect("/login");
+
+  const reviewId = String(formData.get("reviewId") || "");
+  const tourSlug = String(formData.get("tourSlug") || "");
+  const query = String(formData.get("query") || "").trim();
+  const requestedPage = Number(formData.get("page"));
+  const page =
+    Number.isSafeInteger(requestedPage) && requestedPage > 0
+      ? requestedPage
+      : 1;
+  const params = new URLSearchParams();
+  if (query) params.set("query", query);
+  if (page > 1) params.set("page", String(page));
+
+  let error;
+  try {
+    const response = await fetch(
+      `${process.env.SERVER_URL}api/v1/reviews/${encodeURIComponent(reviewId)}`,
+      { method: "DELETE", headers: { Cookie: `jwt=${jwt}` } },
+    );
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      error = body?.message || "Unable to delete review";
+    }
+  } catch {
+    error = serviceError;
+  }
+
+  if (error) {
+    params.set("error", error);
+  } else {
+    updateTag("tours");
+    if (tourSlug) updateTag(getTourCacheTag(tourSlug));
+    params.set("success", "Review deleted successfully");
+  }
+
+  redirect(`/me/admin/manage-reviews?${params}`);
+}
+
+export async function getTourBySlug(slug) {
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 300, expire: 3600 });
+  cacheTag(getTourCacheTag(slug));
   try {
     const res = await fetch(
       `${process.env.SERVER_URL}api/v1/tours/slug/${slug}`,
-      {
-        headers: jwt ? { Cookie: `jwt=${jwt}` } : {},
-        cache: "force-cache",
-        next: {
-          revalidate: 300,
-          tags: [getTourCacheTag(slug)],
-        },
-      },
     );
     if (res.status === 404) return { status: "not-found" };
     if (!res.ok) return { status: "error" };
@@ -166,6 +214,24 @@ export async function getTourBySlug(slug, jwt) {
       return { status: "error" };
 
     return { status: "success", tour: data.data.data };
+  } catch {
+    return { status: "error" };
+  }
+}
+
+export async function getPersonalTourBySlug(slug, jwt) {
+  try {
+    const res = await fetch(
+      `${process.env.SERVER_URL}api/v1/tours/slug/${slug}`,
+      {
+        headers: { Cookie: `jwt=${jwt}` },
+      },
+    );
+    if (!res.ok) return { status: "error" };
+    const data = await res.json();
+    return data.status === "success" && data.data?.data
+      ? { status: "success", tour: data.data.data }
+      : { status: "error" };
   } catch {
     return { status: "error" };
   }
@@ -374,8 +440,6 @@ export async function logout() {
   if (jwt) updateTag(getUserCacheTag(jwt));
 
   cookieStore.delete("jwt");
-
-  redirect("/");
 }
 
 export async function createCheckoutSession(

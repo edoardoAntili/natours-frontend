@@ -6,7 +6,11 @@ import LogoutButton from "./LogoutButton";
 async function UserNav() {
   const result = await getLoggedInUserResult();
   if (result.status === "error")
-    return <span role="status" className="text-[1.4rem] text-white">Account temporarily unavailable</span>;
+    return (
+      <span role="status" className="text-[1.4rem] text-white">
+        Account temporarily unavailable
+      </span>
+    );
   const user = result.status === "success" ? result.user : null;
 
   return user ? (
