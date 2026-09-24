@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { Suspense } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 import OverviewBoxDetail from "@/app/_components/OverviewBoxDetail";
 import TourMapWrapper from "@/app/_components/TourMapWrapper";
 import ReviewCard from "@/app/_components/ReviewCard";
@@ -159,6 +160,48 @@ async function TourPage({ params, searchParams }) {
       </main>
     );
   const { tour } = result;
+  return (
+    <PublicTourContent
+      slug={slug}
+      tour={tour}
+      likeButton={
+        <Suspense
+          key="like-button"
+          fallback={
+            <span className="block h-14 w-14 rounded-full bg-white/70" />
+          }
+        >
+          <PersonalLikeButton tourId={tour._id} />
+        </Suspense>
+      }
+      bookingSection={
+        <Suspense key="booking-section" fallback={null}>
+          <PersonalBookingSection tour={tour} slug={slug} />
+        </Suspense>
+      }
+      reviewSection={
+        <Suspense key="review-section" fallback={null}>
+          <PersonalReviewForm
+            tour={tour}
+            slug={slug}
+            searchParams={searchParams}
+          />
+        </Suspense>
+      }
+    />
+  );
+}
+
+async function PublicTourContent({
+  slug,
+  tour,
+  likeButton,
+  bookingSection,
+  reviewSection,
+}) {
+  "use cache";
+  cacheLife({ stale: 300, revalidate: 300, expire: 3600 });
+  cacheTag(`tour:${slug}`);
   const sortedStartDates = [...tour.startDates].sort(
     (firstDate, secondDate) =>
       new Date(firstDate.date) - new Date(secondDate.date),
@@ -179,15 +222,7 @@ async function TourPage({ params, searchParams }) {
           </div>
         </div>
 
-        <div className="absolute right-[4vw] top-[4vw] z-10">
-          <Suspense
-            fallback={
-              <span className="block h-14 w-14 rounded-full bg-white/70" />
-            }
-          >
-            <PersonalLikeButton tourId={tour._id} />
-          </Suspense>
-        </div>
+        <div className="absolute right-[4vw] top-[4vw] z-10">{likeButton}</div>
 
         <div className="absolute w-full px-6 left-1/2 top-[45%] lg:w-auto lg:px-0 lg:bottom-[13vw] lg:top-[35%] [transform:translate(-50%,_-50%)]">
           <h1 className="text-white uppercase font-light text-[3.6rem] sm:text-[4.4rem] lg:text-[5rem] text-center w-full max-w-[48rem] lg:w-[70%] my-0 mx-auto [&_span]:leading-[1] [&_span]:box-decoration-clone [&_span]:[background-image:linear-gradient(_to_bottom_right,_rgba(125,_213,_111,_0.85),_rgba(40,_180,_135,_0.85)_)] [&_span]:py-4 [&_span]:px-6">
@@ -329,17 +364,8 @@ async function TourPage({ params, searchParams }) {
         </div>
       </section>
 
-      <Suspense fallback={null}>
-        <PersonalBookingSection tour={tour} slug={slug} />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <PersonalReviewForm
-          tour={tour}
-          slug={slug}
-          searchParams={searchParams}
-        />
-      </Suspense>
+      {bookingSection}
+      {reviewSection}
     </main>
   );
 }
