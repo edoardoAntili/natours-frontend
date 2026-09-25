@@ -20,7 +20,7 @@ async function TourCardContainer() {
   cacheLife({ stale: 300, revalidate: 300, expire: 3600 });
 
   return (
-    <div className="max-w-480 grid grid-cols-1 gap-12 sm:grid-cols-2 xl:grid-cols-3 xl:gap-20 my-0 mx-auto">
+    <div className="max-w-[120rem] grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3 lg:gap-16 xl:gap-20 my-0 mx-auto">
       {tours.map((tour, index) => (
         <TourCard tour={tour} key={tour.id} priority={index === 0} />
       ))}

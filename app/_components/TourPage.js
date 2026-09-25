@@ -215,16 +215,15 @@ async function PublicTourContent({
   return (
     <main>
       <section className="relative h-[48rem] sm:h-[54rem] lg:h-[38vw] [clip-path:polygon(_0_0,_100%_0,_100%_calc(100%_-_9vw),_0_100%_)]">
-        <div className="h-full">
-          <div className="relative w-full h-full [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] opacity-[0.85]">
-            <Image
-              className="object-cover h-full w-full object-[50%_25%]"
-              src={`/img/tours/${tour.imageCover}`}
-              alt={tour.name}
-              fill
-              priority
-            />
-          </div>
+        <div className="relative h-full">
+          <Image
+            className="object-cover object-[50%_25%]"
+            src={`/img/tours/${tour.imageCover}`}
+            alt={tour.name}
+            fill
+            priority
+          />
+          <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] opacity-85" />
         </div>
 
         <div className="absolute right-[4vw] top-[4vw] z-10">{likeButton}</div>
@@ -357,7 +356,7 @@ async function PublicTourContent({
         ))}
       </section>
 
-      <section className="relative h-[40rem] sm:h-[50rem] lg:mt-[calc(0px_-_9vw)] lg:h-260">
+      <section className="relative h-[40rem] sm:h-[50rem] lg:mt-[calc(0px_-_9vw)] lg:h-[calc(41rem_+_18vw)] lg:min-h-260">
         <TourMapWrapper locations={tour.locations} />
       </section>
 

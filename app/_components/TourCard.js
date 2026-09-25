@@ -6,16 +6,16 @@ function TourCard({ tour, priority = false }) {
     <div className="rounded-[3px] overflow-hidden shadow-[0_1.5rem_4rem_rgba(0,_0,_0,_0.1)] bg-white transition-all ease-[ease] duration-300 backface-hidden min-w-0 flex flex-col">
       <div className="relative">
         <div className="relative [clip-path:polygon(0_0,_100%_0%,_100%_83%,_0%_98%)] h-88">
-          <div className="absolute w-full h-full [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] opacity-[0.7]">
-            <Image
-              className="object-cover h-full w-full"
-              src={`/img/tours/${tour.imageCover}`}
-              alt={tour.name}
-              width={500}
-              height={300}
-              priority={priority}
-            />
-          </div>
+          <Image
+            className="object-cover h-full w-full"
+            src={`/img/tours/${tour.imageCover}`}
+            alt={tour.name}
+            width={500}
+            height={300}
+            priority={priority}
+            sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 100vw"
+          />
+          <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right_bottom,_#7dd56f,_#28b487)] opacity-70" />
         </div>
 
         <h3 className="text-white uppercase font-light text-[2.75rem] text-right absolute bottom-4 right-8 w-[70%] z-10 [&_span]:leading-[1] [&_span]:box-decoration-clone [&_span]:[background-image:linear-gradient(_to_bottom_right,_rgba(125,_213,_111,_0.85),_rgba(40,_180,_135,_0.85)_)] [&_span]:py-4 [&_span]:px-6">

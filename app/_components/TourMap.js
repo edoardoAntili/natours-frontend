@@ -31,7 +31,7 @@ function unproject([x, y]) {
   ];
 }
 
-function fitLocations(locations, { width, height }) {
+function fitLocations(locations, { width, height, topOverlap, bottomOverlap }) {
   if (!locations.length || !width || !height) return null;
 
   const points = locations.map((location) =>
@@ -44,8 +44,8 @@ function fitLocations(locations, { width, height }) {
   const minY = Math.min(...ys);
   const maxY = Math.max(...ys);
   const horizontalPadding = Math.min(64, width * 0.15);
-  const topPadding = Math.min(120, height * 0.25);
-  const bottomPadding = Math.min(80, height * 0.2);
+  const topPadding = topOverlap + Math.min(120, height * 0.25);
+  const bottomPadding = bottomOverlap + Math.min(80, height * 0.2);
   const availableWidth = Math.max(1, width - 2 * horizontalPadding);
   const availableHeight = Math.max(1, height - topPadding - bottomPadding);
   const zoom = Math.max(
@@ -73,7 +73,12 @@ function fitLocations(locations, { width, height }) {
 
 export default function TourMap({ locations }) {
   const containerRef = useRef(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const [size, setSize] = useState({
+    width: 0,
+    height: 0,
+    topOverlap: 0,
+    bottomOverlap: 0,
+  });
   const [activeLocationId, setActiveLocationId] = useState(null);
   const [pan, setPan] = useState(null);
   const fit = useMemo(() => fitLocations(locations, size), [locations, size]);
@@ -82,18 +87,49 @@ export default function TourMap({ locations }) {
     const container = containerRef.current;
     if (!container) return;
 
-    const observer = new ResizeObserver(([entry]) => {
-      const width = Math.round(entry.contentRect.width);
-      const height = Math.round(entry.contentRect.height);
+    const section = container.closest("section");
+    const previous = section?.previousElementSibling;
+    const next = section?.nextElementSibling;
+    const measure = () => {
+      const { width, height } = container.getBoundingClientRect();
+      const sectionBounds = section?.getBoundingClientRect();
+      const topOverlap =
+        sectionBounds && previous
+          ? Math.max(
+              0,
+              previous.getBoundingClientRect().bottom - sectionBounds.top,
+            )
+          : 0;
+      const bottomOverlap =
+        sectionBounds && next
+          ? Math.max(0, sectionBounds.bottom - next.getBoundingClientRect().top)
+          : 0;
+      const nextSize = {
+        width: Math.round(width),
+        height: Math.round(height),
+        topOverlap: Math.round(topOverlap),
+        bottomOverlap: Math.round(bottomOverlap),
+      };
       setSize((current) =>
-        current.width === width && current.height === height
+        current.width === nextSize.width &&
+        current.height === nextSize.height &&
+        current.topOverlap === nextSize.topOverlap &&
+        current.bottomOverlap === nextSize.bottomOverlap
           ? current
-          : { width, height },
+          : nextSize,
       );
-    });
+    };
+    const observer = new ResizeObserver(measure);
     observer.observe(container);
+    if (previous) observer.observe(previous);
+    if (next) observer.observe(next);
+    window.addEventListener("resize", measure);
+    measure();
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, []);
 
   const activeLocation = locations.find(
