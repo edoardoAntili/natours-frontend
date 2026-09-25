@@ -17,7 +17,8 @@ async function ReviewsContent({ searchParams }) {
   const currentPage = Number.isSafeInteger(page) && page > 0 ? page : 1;
   const result = await getMyReviews(currentPage);
   if (result.status === "unauthenticated") return <AccountLoginNotice />;
-  if (result.status === "error") return <AccountRouteError resource="reviews" />;
+  if (result.status === "error")
+    return <AccountRouteError resource="reviews" />;
 
   const { reviews, pagination } = result;
   const firstResult = (pagination.page - 1) * pagination.limit + 1;
@@ -50,27 +51,46 @@ async function ReviewsContent({ searchParams }) {
             <table className="w-full min-w-[62rem] border-collapse text-left text-[1.4rem]">
               <thead className="bg-[#f3faf1] text-[1.2rem] uppercase tracking-wider text-[#417d48]">
                 <tr>
-                  <th scope="col" className="w-[22%] px-6 py-5 font-semibold">Tour</th>
-                  <th scope="col" className="w-[15%] px-6 py-5 font-semibold">Rating</th>
-                  <th scope="col" className="w-[45%] px-6 py-5 font-semibold">Your review</th>
-                  <th scope="col" className="w-[18%] px-6 py-5 font-semibold">Reviewed on</th>
+                  <th scope="col" className="w-[22%] px-6 py-5 font-semibold">
+                    Tour
+                  </th>
+                  <th scope="col" className="w-[15%] px-6 py-5 font-semibold">
+                    Rating
+                  </th>
+                  <th scope="col" className="w-[45%] px-6 py-5 font-semibold">
+                    Your review
+                  </th>
+                  <th scope="col" className="w-[18%] px-6 py-5 font-semibold">
+                    Reviewed on
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {reviews.map((review) => (
-                  <tr key={review._id} className="align-top text-gray-700 hover:bg-[#fbfdfb]">
-                    <th scope="row" className="px-6 py-6 font-semibold text-gray-900">
+                  <tr
+                    key={review._id}
+                    className="align-top text-gray-700 hover:bg-[#fbfdfb]"
+                  >
+                    <th
+                      scope="row"
+                      className="px-6 py-6 font-semibold text-gray-900"
+                    >
                       {review.tour?.slug ? (
-                        <Link href={`/tour/${review.tour.slug}`} className="hover:text-[#2f8f45] hover:underline">
+                        <Link
+                          href={`/tour/${review.tour.slug}`}
+                          className="hover:text-[#2f8f45] hover:underline"
+                        >
                           {review.tour.name}
                         </Link>
                       ) : (
-                        review.tour?.name ?? "Tour unavailable"
+                        (review.tour?.name ?? "Tour unavailable")
                       )}
                     </th>
                     <td className="px-6 py-6">
                       <span className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-amber-50 px-4 py-1 font-semibold text-amber-800">
-                        <span aria-hidden="true" className="text-amber-500">★</span>
+                        <span aria-hidden="true" className="text-amber-500">
+                          ★
+                        </span>
                         {review.rating} / 5
                       </span>
                     </td>
@@ -85,7 +105,10 @@ async function ReviewsContent({ searchParams }) {
               </tbody>
             </table>
           </div>
-          <nav aria-label="Reviews pages" className="mt-8 flex flex-wrap items-center justify-between gap-4 text-[1.4rem]">
+          <nav
+            aria-label="Reviews pages"
+            className="mt-8 flex flex-wrap items-center justify-between gap-4 text-[1.4rem]"
+          >
             <p className="text-gray-500">
               {reviews.length
                 ? `Showing ${firstResult}–${lastResult} of ${pagination.totalResults}`
@@ -93,7 +116,10 @@ async function ReviewsContent({ searchParams }) {
             </p>
             <div className="flex items-center gap-4">
               {pagination.page > 1 && (
-                <Link href={`/me/reviews?page=${pagination.page - 1}`} className="rounded-lg border border-gray-200 px-5 py-3 font-semibold text-[#2f8f45] hover:bg-[#f3faf1]">
+                <Link
+                  href={`/me/reviews?page=${pagination.page - 1}`}
+                  className="rounded-lg border border-gray-200 px-5 py-3 font-semibold text-[#2f8f45] hover:bg-[#f3faf1]"
+                >
                   Previous
                 </Link>
               )}
@@ -104,7 +130,10 @@ async function ReviewsContent({ searchParams }) {
                   : ""}
               </span>
               {pagination.hasNextPage && (
-                <Link href={`/me/reviews?page=${pagination.page + 1}`} className="rounded-lg bg-[#2f8f45] px-5 py-3 font-semibold text-white hover:bg-[#25783a]">
+                <Link
+                  href={`/me/reviews?page=${pagination.page + 1}`}
+                  className="rounded-lg bg-[#2f8f45] px-5 py-3 font-semibold text-white hover:bg-[#25783a]"
+                >
                   Next
                 </Link>
               )}

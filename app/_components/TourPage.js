@@ -33,8 +33,7 @@ async function PersonalLikeButton({ tourId }) {
   );
 }
 
-async function PersonalBookingOptions({ slug, tourId }) {
-  const user = await getLoggedInUser();
+function PersonalBookingOptions({ user, result, tourId }) {
   if (!user)
     return (
       <Link
@@ -46,11 +45,9 @@ async function PersonalBookingOptions({ slug, tourId }) {
     );
   if (user.role !== "user") return null;
 
-  const jwt = (await cookies()).get("jwt")?.value;
-  const result = await getPersonalTourBySlug(slug, jwt);
   if (result.status !== "success")
     return <ServiceUnavailable resource="booking dates" />;
-  const availableDates = result.tour.startDates;
+  const availableDates = result.tour.availableStartDates;
   return (
     <BookingOptions
       startDates={[...availableDates].sort(
@@ -94,6 +91,16 @@ async function PersonalReviewForm({ tour, slug, searchParams }) {
 async function PersonalBookingSection({ tour, slug }) {
   const user = await getLoggedInUser();
   if (user?.role && user.role !== "user") return null;
+  let result;
+  if (user) {
+    const jwt = (await cookies()).get("jwt")?.value;
+    result = await getPersonalTourBySlug(slug, jwt);
+    if (
+      result.status === "success" &&
+      result.tour.availableStartDates.length === 0
+    )
+      return null;
+  }
   return (
     <section className="bg-[#f7f7f7] px-6 pt-16 pb-20 sm:px-12 lg:mt-[calc(0px_-_9vw)] lg:pt-[calc(15rem_+_9vw)] lg:pb-44">
       <div className="relative max-w-420 overflow-hidden bg-white rounded-[2rem] shadow-[0_3rem_8rem_0.5rem_rgba(0,_0,_0,_0.15)] my-0 mx-auto px-8 py-12 sm:px-16 lg:py-24 lg:pr-16 lg:pl-76 xl:py-36 xl:pr-20 xl:pl-84">
@@ -136,13 +143,11 @@ async function PersonalBookingSection({ tour, slug }) {
             today!
           </p>
 
-          <Suspense
-            fallback={
-              <span className="block h-14 w-48 rounded-full bg-[#55c57a]/20" />
-            }
-          >
-            <PersonalBookingOptions slug={slug} tourId={tour._id} />
-          </Suspense>
+          <PersonalBookingOptions
+            user={user}
+            result={result}
+            tourId={tour._id}
+          />
         </div>
       </div>
     </section>

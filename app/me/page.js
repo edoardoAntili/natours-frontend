@@ -8,7 +8,8 @@ import AccountRouteError from "../_components/AccountRouteError";
 
 async function AccountContent() {
   const result = await getLoggedInUserResult();
-  if (result.status === "error") return <AccountRouteError resource="account" />;
+  if (result.status === "error")
+    return <AccountRouteError resource="account" />;
   const user = result.status === "success" ? result.user : null;
 
   if (!user) return <AccountLoginNotice />;
