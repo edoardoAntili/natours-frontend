@@ -95,7 +95,7 @@ async function PersonalBookingSection({ tour, slug }) {
   if (user) {
     const jwt = (await cookies()).get("jwt")?.value;
     result = await getPersonalTourBySlug(slug, jwt);
-    console.log(result);
+    console.log(result.tour.availableStartDates.length);
     if (
       result.status === "success" &&
       result.tour.availableStartDates.length === 0
