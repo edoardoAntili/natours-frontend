@@ -5,6 +5,11 @@ import Loading from "../../_components/Loading";
 import AccountRouteError from "../../_components/AccountRouteError";
 import { getMyReviews } from "../../_utils/api";
 
+export const metadata = {
+  title: "My reviews",
+  description: "View the reviews you have shared on Natours tours.",
+};
+
 const formatDate = (date) =>
   new Intl.DateTimeFormat("en-US", {
     dateStyle: "medium",

@@ -5,6 +5,11 @@ import TourCard from "../../_components/TourCard";
 import AccountRouteError from "../../_components/AccountRouteError";
 import { getLikedTours } from "../../_utils/api";
 
+export const metadata = {
+  title: "My likes",
+  description: "View your favorite Natours tours.",
+};
+
 async function LikesContent() {
   const result = await getLikedTours();
   if (result.status === "unauthenticated") return <AccountLoginNotice />;

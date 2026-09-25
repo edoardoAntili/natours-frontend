@@ -4,6 +4,7 @@ import Loading from "../_components/Loading";
 
 export const metadata = {
   title: "Sign up",
+  description: "Create a Natours account to book tours and share reviews.",
 };
 
 export default function Signup({ searchParams }) {

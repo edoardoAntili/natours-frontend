@@ -154,6 +154,44 @@ async function PersonalBookingSection({ tour, slug }) {
   );
 }
 
+function BookingSectionFallback() {
+  return (
+    <section
+      className="bg-[#f7f7f7] px-6 pt-16 pb-20 sm:px-12 lg:mt-[calc(0px_-_9vw)] lg:pt-[calc(15rem_+_9vw)] lg:pb-44"
+      role="status"
+      aria-label="Loading booking options"
+    >
+      <div className="relative max-w-420 overflow-hidden bg-white rounded-[2rem] shadow-[0_3rem_8rem_0.5rem_rgba(0,_0,_0,_0.15)] my-0 mx-auto px-8 py-12 sm:px-16 lg:py-24 lg:pr-16 lg:pl-76 xl:py-36 xl:pr-20 xl:pl-84">
+        <div className="hidden lg:block absolute left-0 top-1/2 h-60 w-60 rounded-full bg-[#e8eee9] [transform:translate(-35%,_-50%)]" aria-hidden="true" />
+        <div className="grid grid-cols-1 gap-6 items-center xl:grid-rows-[auto_auto] xl:grid-cols-[1fr_auto] xl:gap-[0.7rem] xl:grid-flow-col animate-pulse" aria-hidden="true">
+          <div className="h-8 w-72 max-w-full rounded bg-[#e8eee9]" />
+          <div className="h-7 w-96 max-w-full rounded bg-[#e8eee9]" />
+          <div className="h-16 w-60 rounded-full bg-[#e8eee9] xl:row-span-full" />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ReviewFormFallback() {
+  return (
+    <section
+      className="bg-[#f7f7f7] px-6 py-12 sm:px-12 sm:py-24"
+      role="status"
+      aria-label="Checking review eligibility"
+    >
+      <div className="max-w-220 bg-white rounded-[1rem] shadow-[0_1rem_4rem_rgba(0,_0,_0,_0.12)] my-0 mx-auto p-8 sm:p-12 animate-pulse" aria-hidden="true">
+        <div className="mb-8 h-8 w-72 max-w-full rounded bg-[#e8eee9]" />
+        <div className="mb-3 h-5 w-24 rounded bg-[#e8eee9]" />
+        <div className="mb-6 h-36 rounded bg-[#e8eee9]" />
+        <div className="mb-3 h-5 w-24 rounded bg-[#e8eee9]" />
+        <div className="mb-6 h-8 w-48 rounded bg-[#e8eee9]" />
+        <div className="h-16 w-60 rounded-full bg-[#e8eee9]" />
+      </div>
+    </section>
+  );
+}
+
 async function TourPage({ params, searchParams }) {
   const { slug } = await params;
   const result = await getTourBySlug(slug);
@@ -180,12 +218,12 @@ async function TourPage({ params, searchParams }) {
         </Suspense>
       }
       bookingSection={
-        <Suspense key="booking-section" fallback={null}>
+        <Suspense key="booking-section" fallback={<BookingSectionFallback />}>
           <PersonalBookingSection tour={tour} slug={slug} />
         </Suspense>
       }
       reviewSection={
-        <Suspense key="review-section" fallback={null}>
+        <Suspense key="review-section" fallback={<ReviewFormFallback />}>
           <PersonalReviewForm
             tour={tour}
             slug={slug}

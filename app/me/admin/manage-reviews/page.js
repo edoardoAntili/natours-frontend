@@ -9,6 +9,11 @@ import {
   getAdminReviews,
 } from "../../../_utils/api";
 
+export const metadata = {
+  title: "Manage reviews",
+  description: "Manage tour reviews in Natours.",
+};
+
 function Notice({ type, children }) {
   const styles =
     type === "error"

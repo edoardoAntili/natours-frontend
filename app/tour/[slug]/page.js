@@ -1,6 +1,20 @@
-import Loading from "@/app/_components/Loading";
 import TourPage from "@/app/_components/TourPage";
-import { Suspense } from "react";
+import { getTourBySlug } from "@/app/_utils/api";
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const result = await getTourBySlug(slug);
+  if (result.status !== "success") {
+    return { title: "Tour unavailable" };
+  }
+
+  const { tour } = result;
+  return {
+    title: tour.name,
+    description:
+      tour.summary || tour.description || `Explore ${tour.name} with Natours.`,
+  };
+}
 
 export async function generateStaticParams() {
   const response = await fetch(
@@ -12,12 +26,8 @@ export async function generateStaticParams() {
   return data.data.data.map((tour) => ({ slug: tour.slug }));
 }
 
-async function Page({ params, searchParams }) {
-  return (
-    <Suspense fallback={<Loading />}>
-      <TourPage params={params} searchParams={searchParams} />
-    </Suspense>
-  );
+function Page({ params, searchParams }) {
+  return <TourPage params={params} searchParams={searchParams} />;
 }
 
 export default Page;

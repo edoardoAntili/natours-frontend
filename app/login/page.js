@@ -2,6 +2,11 @@ import { Suspense } from "react";
 import LoginForm from "../_components/LoginForm";
 import Loading from "../_components/Loading";
 
+export const metadata = {
+  title: "Log in",
+  description: "Log in to your Natours account to manage your adventures.",
+};
+
 function Login({ searchParams }) {
   return (
     <main className="bg-[#f7f7f7] flex-1 relative py-12 px-6 sm:py-20 sm:px-12 lg:py-32 lg:px-24">

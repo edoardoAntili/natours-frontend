@@ -5,6 +5,11 @@ import Loading from "../../_components/Loading";
 import AccountRouteError from "../../_components/AccountRouteError";
 import { getMyBookings } from "../../_utils/api";
 
+export const metadata = {
+  title: "My bookings",
+  description: "View your upcoming and past Natours bookings.",
+};
+
 async function BookingsContent({ searchParams }) {
   const { page: requestedPage } = await searchParams;
   const page = Number(requestedPage);

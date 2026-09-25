@@ -6,6 +6,11 @@ import PasswordChange from "../_components/PasswordChange";
 import { getLoggedInUserResult } from "../_utils/api";
 import AccountRouteError from "../_components/AccountRouteError";
 
+export const metadata = {
+  title: "My account",
+  description: "Manage your Natours account and password.",
+};
+
 async function AccountContent() {
   const result = await getLoggedInUserResult();
   if (result.status === "error")
