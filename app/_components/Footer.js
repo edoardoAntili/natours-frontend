@@ -17,7 +17,7 @@ function Footer() {
       </div>
 
       <p className="text-center justify-self-end text-[#999] [@media(max-width:50em)]:justify-self-center">
-        &copy; by Jonas Schmedtmann.
+        &copy; by Edoardo Antili from Jonas Schmedtmann's course.
       </p>
     </footer>
   );
