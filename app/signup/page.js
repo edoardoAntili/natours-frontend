@@ -1,6 +1,4 @@
-import { Suspense } from "react";
 import SignupForm from "../_components/SignupForm";
-import Loading from "../_components/Loading";
 
 export const metadata = {
   title: "Sign up",
@@ -15,9 +13,7 @@ export default function Signup({ searchParams }) {
           Create your account
         </h2>
 
-        <Suspense fallback={<Loading />}>
-          <SignupForm searchParams={searchParams} />
-        </Suspense>
+        <SignupForm searchParams={searchParams} />
       </div>
     </main>
   );

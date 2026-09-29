@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { login } from "../_utils/api";
+import AuthFormError from "./AuthFormError";
 import SubmitButton from "./SubmitButton";
 
 const fields = [
@@ -19,9 +21,7 @@ const fields = [
   },
 ];
 
-async function LoginForm({ searchParams }) {
-  const { error } = await searchParams;
-
+function LoginForm({ searchParams }) {
   return (
     <form action={login}>
       {fields.map(({ label, ...field }) => (
@@ -48,11 +48,9 @@ async function LoginForm({ searchParams }) {
         className="text-[1.6rem] rounded-[10rem] uppercase inline-block no-underline relative transition-all ease-[ease] duration-400 font-normal backface-hidden border-0 cursor-pointer bg-[#55c57a] text-white py-[1.4rem] px-12 hover:[transform:translateY(-3px)] hover:shadow-[0_1rem_2rem_rgba(0,_0,_0,_0.15)] active:[transform:translateY(-1px)] active:shadow-[0_0.5rem_1rem_rgba(0,_0,_0,_0.15)] focus:outline-none focus:bg-[#2e864b]"
       />
 
-      {error && (
-        <p role="alert" className="mt-8 text-[#eb4d4b] text-[1.4rem]">
-          {error}
-        </p>
-      )}
+      <Suspense fallback={null}>
+        <AuthFormError searchParams={searchParams} />
+      </Suspense>
     </form>
   );
 }

@@ -4,10 +4,7 @@ import AccountLoginNotice from "../../../_components/AccountLoginNotice";
 import AccountRouteError from "../../../_components/AccountRouteError";
 import DeleteReviewButton from "../../../_components/DeleteReviewButton";
 import Loading from "../../../_components/Loading";
-import {
-  deleteAdminReview,
-  getAdminReviews,
-} from "../../../_utils/api";
+import { deleteAdminReview, getAdminReviews } from "../../../_utils/api";
 
 export const metadata = {
   title: "Manage reviews",
@@ -20,7 +17,10 @@ function Notice({ type, children }) {
       ? "border-red-200 bg-red-50 text-[#b83232]"
       : "border-green-200 bg-green-50 text-[#2f8f45]";
   return (
-    <p role={type === "error" ? "alert" : "status"} className={`mb-8 rounded-lg border px-6 py-4 text-[1.4rem] ${styles}`}>
+    <p
+      role={type === "error" ? "alert" : "status"}
+      className={`mb-8 rounded-lg border px-6 py-4 text-[1.4rem] ${styles}`}
+    >
       {children}
     </p>
   );
@@ -31,7 +31,9 @@ async function ReviewsContent({ searchParams }) {
   const query = typeof params.query === "string" ? params.query.trim() : "";
   const requestedPage = Number(params.page);
   const page =
-    Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    Number.isSafeInteger(requestedPage) && requestedPage > 0
+      ? requestedPage
+      : 1;
   const result = await getAdminReviews(query, page);
 
   if (result.status === "unauthenticated") return <AccountLoginNotice />;
@@ -67,7 +69,8 @@ async function ReviewsContent({ searchParams }) {
           </p>
         </div>
         <span className="rounded-full bg-[#e8f7e5] px-5 py-2 text-[1.3rem] font-semibold text-[#2f8f45]">
-          {pagination.totalResults} {pagination.totalResults === 1 ? "review" : "reviews"}
+          {pagination.totalResults}{" "}
+          {pagination.totalResults === 1 ? "review" : "reviews"}
         </span>
       </div>
 
@@ -86,11 +89,17 @@ async function ReviewsContent({ searchParams }) {
           placeholder="Search user name or email"
           className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-5 py-3 text-[1.5rem] outline-none focus:border-[#55c57a] focus:ring-2 focus:ring-[#55c57a]/20"
         />
-        <button type="submit" className="rounded-lg bg-[#2f8f45] px-7 py-3 text-[1.4rem] font-semibold text-white hover:bg-[#25783a]">
+        <button
+          type="submit"
+          className="rounded-lg bg-[#2f8f45] px-7 py-3 text-[1.4rem] font-semibold text-white hover:bg-[#25783a]"
+        >
           Search
         </button>
         {query && (
-          <Link href="/me/admin/manage-reviews" className="rounded-lg border border-gray-200 px-7 py-3 text-center text-[1.4rem] font-semibold text-gray-600 hover:bg-gray-50">
+          <Link
+            href="/me/admin/manage-reviews"
+            className="rounded-lg border border-gray-200 px-7 py-3 text-center text-[1.4rem] font-semibold text-gray-600 hover:bg-gray-50"
+          >
             Clear
           </Link>
         )}
@@ -106,20 +115,44 @@ async function ReviewsContent({ searchParams }) {
             <table className="w-full min-w-[90rem] border-collapse text-left text-[1.4rem]">
               <thead className="bg-[#f3faf1] text-[1.2rem] uppercase tracking-wider text-[#417d48]">
                 <tr>
-                  <th scope="col" className="px-6 py-5 font-semibold">Email</th>
-                  <th scope="col" className="px-6 py-5 font-semibold">User</th>
-                  <th scope="col" className="px-6 py-5 font-semibold">Tour</th>
-                  <th scope="col" className="w-[40%] px-6 py-5 font-semibold">Review</th>
-                  <th scope="col" className="px-6 py-5 font-semibold">Actions</th>
+                  <th scope="col" className="px-6 py-5 font-semibold">
+                    Email
+                  </th>
+                  <th scope="col" className="px-6 py-5 font-semibold">
+                    User
+                  </th>
+                  <th scope="col" className="px-6 py-5 font-semibold">
+                    Tour
+                  </th>
+                  <th scope="col" className="w-[40%] px-6 py-5 font-semibold">
+                    Review
+                  </th>
+                  <th scope="col" className="px-6 py-5 font-semibold">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {reviews.map((review) => (
-                  <tr key={review._id} className="align-top text-gray-700 hover:bg-[#fbfdfb]">
-                    <td className="px-6 py-6">{review.user?.email ?? "User unavailable"}</td>
-                    <th scope="row" className="px-6 py-6 font-semibold text-gray-900">{review.user?.name ?? "User unavailable"}</th>
-                    <td className="px-6 py-6">{review.tour?.name ?? "Tour unavailable"}</td>
-                    <td className="max-w-[38rem] whitespace-pre-wrap wrap-break-word px-6 py-6 leading-relaxed">{review.review}</td>
+                  <tr
+                    key={review._id}
+                    className="align-top text-gray-700 hover:bg-[#fbfdfb]"
+                  >
+                    <td className="px-6 py-6">
+                      {review.user?.email ?? "User unavailable"}
+                    </td>
+                    <th
+                      scope="row"
+                      className="px-6 py-6 font-semibold text-gray-900"
+                    >
+                      {review.user?.name ?? "User unavailable"}
+                    </th>
+                    <td className="px-6 py-6">
+                      {review.tour?.name ?? "Tour unavailable"}
+                    </td>
+                    <td className="max-w-[38rem] whitespace-pre-wrap wrap-break-word px-6 py-6 leading-relaxed">
+                      {review.review}
+                    </td>
                     <td className="px-6 py-6">
                       <DeleteReviewButton
                         action={deleteAdminReview}
@@ -135,12 +168,34 @@ async function ReviewsContent({ searchParams }) {
             </table>
           </div>
 
-          <nav aria-label="Review pages" className="mt-8 flex flex-wrap items-center justify-between gap-4 text-[1.4rem]">
-            <p className="text-gray-500">Showing {firstResult}–{lastResult} of {pagination.totalResults}</p>
+          <nav
+            aria-label="Review pages"
+            className="mt-8 flex flex-wrap items-center justify-between gap-4 text-[1.4rem]"
+          >
+            <p className="text-gray-500">
+              Showing {firstResult}–{lastResult} of {pagination.totalResults}
+            </p>
             <div className="flex items-center gap-4">
-              {pagination.page > 1 && <Link href={pageHref(pagination.page - 1)} className="rounded-lg border border-gray-200 px-5 py-3 font-semibold text-[#2f8f45] hover:bg-[#f3faf1]">Previous</Link>}
-              <span className="text-gray-600">Page {pagination.page}{pagination.totalPages ? ` of ${pagination.totalPages}` : ""}</span>
-              {pagination.hasNextPage && <Link href={pageHref(pagination.page + 1)} className="rounded-lg bg-[#2f8f45] px-5 py-3 font-semibold text-white hover:bg-[#25783a]">Next</Link>}
+              {pagination.page > 1 && (
+                <Link
+                  href={pageHref(pagination.page - 1)}
+                  className="rounded-lg border border-gray-200 px-5 py-3 font-semibold text-[#2f8f45] hover:bg-[#f3faf1]"
+                >
+                  Previous
+                </Link>
+              )}
+              <span className="text-gray-600">
+                Page {pagination.page}
+                {pagination.totalPages ? ` of ${pagination.totalPages}` : ""}
+              </span>
+              {pagination.hasNextPage && (
+                <Link
+                  href={pageHref(pagination.page + 1)}
+                  className="rounded-lg bg-[#2f8f45] px-5 py-3 font-semibold text-white hover:bg-[#25783a]"
+                >
+                  Next
+                </Link>
+              )}
             </div>
           </nav>
         </>

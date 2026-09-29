@@ -1,6 +1,4 @@
-import { Suspense } from "react";
 import LoginForm from "../_components/LoginForm";
-import Loading from "../_components/Loading";
 
 export const metadata = {
   title: "Log in",
@@ -15,9 +13,7 @@ function Login({ searchParams }) {
           Log into your account
         </h2>
 
-        <Suspense fallback={<Loading />}>
-          <LoginForm searchParams={searchParams} />
-        </Suspense>
+        <LoginForm searchParams={searchParams} />
       </div>
     </main>
   );
