@@ -70,7 +70,12 @@ export default function AccountNav({ role }) {
               segment="admin"
             />
 
-            <NavItem href="#" text="Manage bookings" icon="briefcase" />
+            <ActiveAccountLink
+              href="/me/admin/manage-bookings"
+              text="Manage bookings"
+              icon="briefcase"
+              segment="admin"
+            />
           </ul>
         </div>
       )}

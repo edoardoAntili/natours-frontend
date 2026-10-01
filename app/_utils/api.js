@@ -155,20 +155,23 @@ export async function getAdminReviews(query, page) {
   }
 }
 
-export async function deleteAdminReview(formData) {
+export async function deleteAdminReview({
+  reviewId: requestedReviewId,
+  tourSlug: requestedTourSlug,
+  query: requestedQuery,
+  page: requestedPage,
+} = {}) {
   "use server";
 
   const jwt = (await cookies()).get("jwt")?.value;
   if (!jwt) redirect("/login");
 
-  const reviewId = String(formData.get("reviewId") || "");
-  const tourSlug = String(formData.get("tourSlug") || "");
-  const query = String(formData.get("query") || "").trim();
-  const requestedPage = Number(formData.get("page"));
+  const reviewId = String(requestedReviewId || "");
+  const tourSlug = String(requestedTourSlug || "");
+  const query = String(requestedQuery || "").trim();
+  const parsedPage = Number(requestedPage);
   const page =
-    Number.isSafeInteger(requestedPage) && requestedPage > 0
-      ? requestedPage
-      : 1;
+    Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
   const params = new URLSearchParams();
   if (query) params.set("query", query);
   if (page > 1) params.set("page", String(page));
@@ -196,6 +199,85 @@ export async function deleteAdminReview(formData) {
   }
 
   redirect(`/me/admin/manage-reviews?${params}`);
+}
+
+export async function getAdminBookings(query, page) {
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) return { status: "unauthenticated" };
+
+  const params = new URLSearchParams({ page: String(page), limit: "10" });
+  if (query) params.set("query", query);
+
+  try {
+    const response = await fetch(
+      `${process.env.SERVER_URL}api/v1/bookings/admin?${params}`,
+      {
+        headers: { Cookie: `jwt=${jwt}` },
+        cache: "no-store",
+      },
+    );
+    if (response.status === 401) return { status: "unauthenticated" };
+    if (response.status === 403) return { status: "forbidden" };
+    if (!response.ok) return { status: "error" };
+
+    const body = await response.json();
+    if (!Array.isArray(body?.data?.data) || !body.pagination)
+      return { status: "error" };
+
+    return {
+      status: "success",
+      bookings: body.data.data,
+      pagination: body.pagination,
+    };
+  } catch {
+    return { status: "error" };
+  }
+}
+
+export async function deleteAdminBooking({
+  bookingId: requestedBookingId,
+  tourSlug: requestedTourSlug,
+  query: requestedQuery,
+  page: requestedPage,
+} = {}) {
+  "use server";
+
+  const jwt = (await cookies()).get("jwt")?.value;
+  if (!jwt) redirect("/login");
+
+  const bookingId = String(requestedBookingId || "");
+  const tourSlug = String(requestedTourSlug || "");
+  const query = String(requestedQuery || "").trim();
+  const parsedPage = Number(requestedPage);
+  const page =
+    Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  const params = new URLSearchParams();
+  if (query) params.set("query", query);
+  if (page > 1) params.set("page", String(page));
+
+  let error;
+  try {
+    const response = await fetch(
+      `${process.env.SERVER_URL}api/v1/bookings/${encodeURIComponent(bookingId)}`,
+      { method: "DELETE", headers: { Cookie: `jwt=${jwt}` } },
+    );
+    if (!response.ok) {
+      const body = await response.json().catch(() => null);
+      error = body?.message || "Unable to delete booking";
+    }
+  } catch {
+    error = serviceError;
+  }
+
+  if (error) {
+    params.set("error", error);
+  } else {
+    updateTag("tours");
+    if (tourSlug) updateTag(getTourCacheTag(tourSlug));
+    params.set("success", "Booking deleted successfully");
+  }
+
+  redirect(`/me/admin/manage-bookings?${params}`);
 }
 
 export async function getTourBySlug(slug) {

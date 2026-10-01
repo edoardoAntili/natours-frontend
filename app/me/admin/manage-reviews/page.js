@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import AccountLoginNotice from "../../../_components/AccountLoginNotice";
 import AccountRouteError from "../../../_components/AccountRouteError";
-import DeleteReviewButton from "../../../_components/DeleteReviewButton";
+import DeleteConfirmationButton from "../../../_components/DeleteConfirmationButton";
 import Loading from "../../../_components/Loading";
 import { deleteAdminReview, getAdminReviews } from "../../../_utils/api";
 
@@ -154,12 +154,18 @@ async function ReviewsContent({ searchParams }) {
                       {review.review}
                     </td>
                     <td className="px-6 py-6">
-                      <DeleteReviewButton
+                      <DeleteConfirmationButton
                         action={deleteAdminReview}
-                        reviewId={review._id}
-                        tourSlug={review.tour?.slug ?? ""}
-                        query={query}
-                        page={pagination.page}
+                        actionArgs={{
+                          reviewId: review._id,
+                          tourSlug: review.tour?.slug ?? "",
+                          query,
+                          page: pagination.page,
+                        }}
+                        title="Delete review?"
+                        description={`Permanently delete ${review.user?.name ?? "this user"}'s review for ${review.tour?.name ?? "this tour"}? This action cannot be undone.`}
+                        confirmText="Delete review"
+                        dialogId={`delete-review-${review._id}`}
                       />
                     </td>
                   </tr>
